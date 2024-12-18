@@ -1,0 +1,48 @@
+button {
+    min-width: 120px;
+    margin: 5px 50px;
+}
+
+.title {
+    font-size: 24px;
+    margin: 10px;
+}
+
+.game-area {
+    background-color: #000000;
+    border: 2px solid #333333;
+}
+
+.next-piece {
+    background-color: #000000;
+    border: 2px solid #333333;
+}
+
+.score-label {
+    font-size: 18px;
+    font-weight: bold;
+} 
+
+.block {
+    border: 2px solid #333333;
+}
+
+.green {
+    background-color: #37f108;
+}
+
+.red {
+    background-color: #f10808;
+}
+
+.blue {
+    background-color: #019ef8;
+}
+
+.yellow {
+    background-color: #edf108;
+}
+
+.purple {
+    background-color: #f108f1;
+}

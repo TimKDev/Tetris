@@ -8,20 +8,22 @@
 
 typedef struct
 {
-    GridValue fixedBlocks[GAME_WIDTH][GAME_HEIGHT];
-    Piece activePiece;
-    Piece nextPiece;
-    int score;
-} GameData;
-
-typedef struct
-{
     GridValue value;
     Point *blocks;
     int numberOfBlocks;
 } Piece;
 
+typedef struct
+{
+    GridValue fixedBlocks[GAME_WIDTH][GAME_HEIGHT];
+    Piece *activePiece;
+    Piece *nextPiece;
+    int score;
+} GameData;
+
 GameData *initialize();
+
+void print_game_data(GameData *game);
 
 void clean_up();
 

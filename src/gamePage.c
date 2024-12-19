@@ -1,4 +1,6 @@
 #include "gamePage.h"
+#include "gameLogic.h"
+
 #define BLOCK_SIZE 25
 
 typedef struct
@@ -47,6 +49,9 @@ GtkWidget *create_game_page(void)
     GtkWidget *score_label;
     GtkWidget *next_piece_label;
     static int counter = 0;
+
+    GameData *gameData = initialize();
+    print_game_data(gameData);
 
     // Create horizontal box container for main layout
     box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 20);

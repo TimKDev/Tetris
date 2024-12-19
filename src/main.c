@@ -43,21 +43,6 @@ static void activate(GtkApplication *app, gpointer user_data)
 
 int main(int argc, char **argv)
 { 
-    // In your main or game code:
-    GameConfig *config = load_config_from_file("config/game.json");
-    if (config == NULL)
-    {
-        fprintf(stderr, "Failed to load configuration\n");
-        return 1;
-    }
-
-    // Access the configuration
-    printf("First color: %s, score value: %d\n",
-           config->colors[0].className,
-           config->colors[0].scoreValue);
-
-    // When done
-    destroy_game_config(config);
     GtkApplication *app = gtk_application_new("org.example.hello", G_APPLICATION_DEFAULT_FLAGS);
     g_signal_connect(app, "activate", G_CALLBACK(activate), NULL);
     int status = g_application_run(G_APPLICATION(app), argc, argv);

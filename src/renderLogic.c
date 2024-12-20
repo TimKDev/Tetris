@@ -1,26 +1,7 @@
 #include <gtk/gtk.h>
 #include "../header/renderLogic.h"
 #include "renderLogic.h"
-
-GtkWidget *render_game_data(GtkWidget *game_area, GameData data)
-{ // Allocate new memory for each tetromino
-    GtkWidget **blocks = g_new(GtkWidget *, 4);
-
-    for (int i = 0; i < 4; i++)
-    {
-        blocks[i] = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
-        gtk_widget_set_size_request(blocks[i], BLOCK_SIZE, BLOCK_SIZE);
-        gtk_widget_add_css_class(blocks[i], "block");
-        gtk_widget_add_css_class(blocks[i], color);
-    }
-
-    gtk_fixed_put(GTK_FIXED(game_area), blocks[0], pos.x, pos.y);
-    gtk_fixed_put(GTK_FIXED(game_area), blocks[1], pos.x + BLOCK_SIZE, pos.y);
-    gtk_fixed_put(GTK_FIXED(game_area), blocks[2], pos.x + 2 * BLOCK_SIZE, pos.y);
-    gtk_fixed_put(GTK_FIXED(game_area), blocks[3], pos.x + 2 * BLOCK_SIZE, pos.y + BLOCK_SIZE);
-
-    return blocks;
-}
+#include "gameLogic.h"
 
 RenderState *create_render_state(void)
 {
@@ -41,7 +22,31 @@ void render_game_data(GtkWidget *game_area, const GameData *data, RenderState *r
 
     for (int i = 0; i < data->activePiece->numberOfBlocks; i++)
     {
+        Piece *activePiece = data->activePiece;
+        GtkWidget *block = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
+        gtk_widget_set_size_request(block, BLOCK_SIZE, BLOCK_SIZE);
+        gtk_widget_add_css_class(block, "block");
+        gtk_widget_add_css_class(block, getColorFromGridValue(activePiece->value));
+        gtk_fixed_put(GTK_FIXED(game_area), block, activePiece->blocks[i].x * BLOCK_SIZE, activePiece->blocks[i].y * BLOCK_SIZE);
         // Implementiere das Rendering für die Active Piece und danach überrprüfe, ob zu den fixed Pieces neue hinzugekommen sind,
         // d.h. ob der Pointer der Reversed Linked List im RenderState anders ist als vorher.
+    }
+}
+
+char *getColorFromGridValue(GridValue value)
+{
+    switch (value)
+    {
+    case Blue:
+        return "blue";
+    case Red:
+        return "red";
+    case Yellow:
+        return "yellow";
+    case Green:
+        return "green";
+    default:
+        printf("Unknown color");
+        return "";
     }
 }

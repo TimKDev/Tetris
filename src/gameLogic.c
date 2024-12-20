@@ -82,10 +82,13 @@ Piece *create_random_piece()
     Point *blocks = (Point *)malloc(numberOfBlocksInRandomPiece * sizeof(Point));
     result->numberOfBlocks = numberOfBlocksInRandomPiece;
     result->blocks = blocks;
+
+    int xOffset = 4;
+    int yOffset = 0;
     for (int i = 0; i < numberOfBlocksInRandomPiece; i++)
     {
-        blocks[i].x = randomPieceConfig[i].x;
-        blocks[i].y = randomPieceConfig[i].y;
+        blocks[i].x = randomPieceConfig[i].x + xOffset;
+        blocks[i].y = randomPieceConfig[i].y + yOffset;
     }
 
     return result;

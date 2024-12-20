@@ -5,6 +5,7 @@
 
 #define GAME_WIDTH 8
 #define GAME_HEIGHT 8
+#define BLOCK_SIZE 25
 
 typedef struct
 {

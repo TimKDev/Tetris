@@ -4,10 +4,10 @@
 #include <gtk/gtk.h>
 #include "gameLogic.h"
 
-typedef struct
+typedef struct FixedBlockNode
 {
     GtkWidget *block;
-    FixedBlockNode *previous;
+    struct FixedBlockNode *previous;
 } FixedBlockNode;
 
 typedef struct
@@ -17,8 +17,15 @@ typedef struct
     FixedBlockNode *fixedBlockWidgets;
 } RenderState;
 
+typedef struct
+{
+    GtkWidget *game_area;
+    GameData *game_data;
+    RenderState *render_state;
+} GameContext;
+
 RenderState *create_render_state(void);
 void destroy_render_state(RenderState *state);
-void render_game_data(GtkWidget *game_area, const GameData *data, RenderState *render_state);
+void render_game_data(GameContext *context);
 
 #endif

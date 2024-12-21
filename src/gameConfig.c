@@ -43,10 +43,11 @@ GameConfig* load_config_from_file(const char* filename) {
         json_object *key_obj, *class_obj, *score_obj;
         
         json_object_object_get_ex(color_obj, "key", &key_obj);
+        GridValue enumValue = (GridValue)json_object_get_int(key_obj);
         json_object_object_get_ex(color_obj, "className", &class_obj);
         json_object_object_get_ex(color_obj, "scoreValue", &score_obj);
         
-        config->colors[i].key = json_object_get_string(key_obj)[0];
+        config->colors[i].key = enumValue;
         config->colors[i].className = strdup(json_object_get_string(class_obj));
         config->colors[i].scoreValue = json_object_get_int(score_obj);
     }

@@ -3,6 +3,8 @@
 #include <time.h>
 #include "../header/gameLogic.h"
 
+#define FallVelocity = 0.1f
+
 GameData *initialize();
 void print_game_data(GameData *game);
 void clean_up();
@@ -11,17 +13,13 @@ void print_piece(Piece *piece);
 Piece *create_random_piece();
 void destory_game_data();
 
-static GameData *gameData;
-static GameConfig *config;
-
-GameData *initialize()
+GameData *initialize(GameConfig *config)
 {
     srand(time(NULL));
-    config = load_config_from_file("config/game.json");
-    gameData = (GameData *)calloc(1, sizeof(GameData));
+    GameData *gameData = (GameData *)calloc(1, sizeof(GameData));
 
-    gameData->activePiece = create_random_piece();
-    gameData->nextPiece = create_random_piece();
+    gameData->activePiece = create_random_piece(config);
+    gameData->nextPiece = create_random_piece(config);
 
     return gameData;
 }
@@ -51,13 +49,18 @@ void print_game_data(GameData *game)
 void clean_up()
 {
     // Guard Clause für den Fall, dass initialize noch nicht aufgerufen wurde.
-    destroy_game_config(config);
     destory_game_data();
 }
 
-GameData *nextMove()
+GameData *nextMove(GameData gameData)
 {
     // Guard Clause für den Fall, dass initialize noch nicht aufgerufen wurde.
+    //
+}
+
+void move_piece_down()
+{
+    
 }
 
 void print_piece(Piece *piece)
@@ -69,10 +72,12 @@ void print_piece(Piece *piece)
     }
 }
 
-Piece *create_random_piece()
+Piece *create_random_piece(GameConfig *config)
 {
     int randomColorPosition = rand() % config->colorsCount;
+    printf("randomColorPostion: %d", randomColorPosition);
     ColorConfig randomColorConfig = config->colors[randomColorPosition];
+    printf("randomColor: %d", randomColorConfig.key);
     int randomPiecePosition = rand() % config->piecesCount;
     Point *randomPieceConfig = config->pieces[randomPiecePosition];
     int numberOfBlocksInRandomPiece = config->pieceSizes[randomPiecePosition];

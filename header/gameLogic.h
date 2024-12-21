@@ -22,12 +22,12 @@ typedef struct
     int score;
 } GameData;
 
-GameData *initialize();
+GameData *initialize(GameConfig *config);
 
 void print_game_data(GameData *game);
 
 void clean_up();
 
-GameData *nextMove();
+GameData *nextMove(GameData gameData);
 
 #endif

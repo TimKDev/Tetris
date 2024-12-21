@@ -1,12 +1,20 @@
 #include "gamePage.h"
 #include "gameLogic.h"
+#include "renderLogic.h"
+#include "gameConfig.h"
 
-static gboolean update_game(gpointer data);
+static gboolean update_game(GameContext *data);
+void setup_key_controls(GtkWidget *window, GameContext *context);
+static gboolean on_key_pressed(GtkEventControllerKey *controller,
+                               guint keyval,
+                               guint keycode,
+                               GdkModifierType state,
+                               gpointer user_data);
 
 static int y_position = 200;
 GtkWidget **moving_blocks = NULL;
 
-GtkWidget *create_game_page(void)
+GtkWidget *create_game_page(GtkWidget *window)
 {
     GtkWidget *box;
     GtkWidget *game_area;
@@ -15,8 +23,9 @@ GtkWidget *create_game_page(void)
     GtkWidget *next_piece_label;
     static int counter = 0;
 
-    GameData *gameData = initialize();
-    print_game_data(gameData);
+    GameConfig *config = load_config_from_file("config/game.json");
+    GameData *game_data = initialize(config);
+    print_game_data(game_data);
 
     // Create horizontal box container for main layout
     box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 20);
@@ -30,8 +39,19 @@ GtkWidget *create_game_page(void)
     gtk_widget_set_size_request(game_area, 300, 400);
     gtk_widget_add_css_class(game_area, "game-area");
 
+    RenderState *render_state = create_render_state();
+    GameContext *game_context = (GameContext *)malloc(sizeof(GameContext));
+    game_context->game_area = game_area;
+    game_context->game_data = game_data;
+    game_context->render_state = render_state;
+
+    //Das macht den Code irgendwie langsam und funktioniert nicht.
+    //GtkEventController *key_controller = gtk_event_controller_key_new();
+    //g_signal_connect(key_controller, "key-pressed", G_CALLBACK(on_key_pressed), game_context);
+    //gtk_widget_add_controller(window, key_controller);
+
     // Create a timer function that will be called every second
-    g_timeout_add(100, G_SOURCE_FUNC(update_game), game_area, gameData);
+    g_timeout_add(100, G_SOURCE_FUNC(update_game), game_context);
 
     // Create side panel (right side)
     side_panel = gtk_box_new(GTK_ORIENTATION_VERTICAL, 10);
@@ -61,8 +81,48 @@ GtkWidget *create_game_page(void)
     return box;
 }
 
-static gboolean update_game(gpointer game_area, GameData gameData)
+static gboolean update_game(GameContext *gameContext)
 {
-    GtkWidget *game = (GtkWidget *)game_area;
+    render_game_data(gameContext);
     return G_SOURCE_CONTINUE; // Return TRUE to keep the timer running
+}
+
+// Callback function for key events
+static gboolean on_key_pressed(GtkEventControllerKey *controller,
+                               guint keyval,
+                               guint keycode,
+                               GdkModifierType state,
+                               gpointer user_data)
+{
+    GameContext *context = (GameContext *)user_data;
+
+    switch (keyval)
+    {
+    case GDK_KEY_Left:
+        // Handle left arrow
+        printf("Left arrow pressed\n");
+        break;
+
+    case GDK_KEY_Right:
+        // Handle right arrow
+        printf("Right arrow pressed\n");
+        break;
+
+    case GDK_KEY_Up:
+        // Handle up arrow
+        printf("Up arrow pressed\n");
+        break;
+
+    case GDK_KEY_Down:
+        // Handle down arrow
+        printf("Down arrow pressed\n");
+        break;
+
+    default:
+        return FALSE; // Event not handled
+    }
+
+    // Trigger a re-render if needed
+    render_game_data(context);
+    return TRUE; // Event handled
 }

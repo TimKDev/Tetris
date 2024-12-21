@@ -1,28 +1,56 @@
 {
     "colors": [
         {
-            "key": "b",
+            "key": 1,
             "className": "blue",
             "scoreValue": 4
         },
         {
-            "key": "r",
+            "key": 2,
             "className": "red",
             "scoreValue": 5
+        },
+        {
+            "key": 3,
+            "className": "green",
+            "scoreValue": 10
+        },
+        {
+            "key": 4,
+            "className": "yellow",
+            "scoreValue": 20
         }
     ],
     "pieces": [
         [
-            {"x": 0, "y": 0},
-            {"x": 0, "y": 1},
-            {"x": 0, "y": 2}
+            {
+                "x": 0,
+                "y": 0
+            },
+            {
+                "x": 0,
+                "y": 1
+            },
+            {
+                "x": 0,
+                "y": 2
+            }
         ],
         [
-            {"x": 0, "y": 0},
-            {"x": 1, "y": 1},
-            {"x": 1, "y": 2}
+            {
+                "x": 0,
+                "y": 0
+            },
+            {
+                "x": 1,
+                "y": 1
+            },
+            {
+                "x": 1,
+                "y": 2
+            }
         ]
     ],
     "velocityDown": 1,
     "velocityMovement": 3
-} 
+}

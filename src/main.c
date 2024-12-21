@@ -19,7 +19,7 @@ static void apply_css(void)
 static void print_play(GtkWidget *widget, gpointer data)
 {
     gtk_window_set_child(GTK_WINDOW(window), NULL);
-    GtkWidget *gamePage = create_game_page();
+    GtkWidget *gamePage = create_game_page(window);
     gtk_window_set_child(GTK_WINDOW(window), gamePage);
 }
 

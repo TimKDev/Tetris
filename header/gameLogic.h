@@ -28,6 +28,10 @@ void print_game_data(GameData *game);
 
 void clean_up();
 
-GameData *nextMove(GameData gameData);
+void nextMove(GameData *gameData);
+
+void move_piece_left(GameData *gameData);
+
+void move_piece_right(GameData *gameData);
 
 #endif

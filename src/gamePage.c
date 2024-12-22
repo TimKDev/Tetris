@@ -45,13 +45,13 @@ GtkWidget *create_game_page(GtkWidget *window)
     game_context->game_data = game_data;
     game_context->render_state = render_state;
 
-    //Das macht den Code irgendwie langsam und funktioniert nicht.
-    //GtkEventController *key_controller = gtk_event_controller_key_new();
-    //g_signal_connect(key_controller, "key-pressed", G_CALLBACK(on_key_pressed), game_context);
-    //gtk_widget_add_controller(window, key_controller);
+    // Das macht den Code irgendwie langsam und funktioniert nicht.
+    GtkEventController *key_controller = gtk_event_controller_key_new();
+    g_signal_connect(key_controller, "key-pressed", G_CALLBACK(on_key_pressed), game_context);
+    gtk_widget_add_controller(window, key_controller);
 
     // Create a timer function that will be called every second
-    g_timeout_add(100, G_SOURCE_FUNC(update_game), game_context);
+    g_timeout_add(10, G_SOURCE_FUNC(update_game), game_context);
 
     // Create side panel (right side)
     side_panel = gtk_box_new(GTK_ORIENTATION_VERTICAL, 10);
@@ -83,6 +83,7 @@ GtkWidget *create_game_page(GtkWidget *window)
 
 static gboolean update_game(GameContext *gameContext)
 {
+    nextMove(gameContext->game_data);
     render_game_data(gameContext);
     return G_SOURCE_CONTINUE; // Return TRUE to keep the timer running
 }
@@ -99,13 +100,11 @@ static gboolean on_key_pressed(GtkEventControllerKey *controller,
     switch (keyval)
     {
     case GDK_KEY_Left:
-        // Handle left arrow
-        printf("Left arrow pressed\n");
+        move_piece_left(context->game_data);
         break;
 
     case GDK_KEY_Right:
-        // Handle right arrow
-        printf("Right arrow pressed\n");
+        move_piece_right(context->game_data);
         break;
 
     case GDK_KEY_Up:

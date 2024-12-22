@@ -12,7 +12,7 @@ typedef struct FixedBlockNode
 
 typedef struct
 {
-    GtkWidget *activeBlockWidgets;
+    GtkWidget **activeBlockWidgets;
     int numberActiveBlocks;
     FixedBlockNode *fixedBlockWidgets;
 } RenderState;

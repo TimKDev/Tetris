@@ -4,9 +4,9 @@
 #define GAME_LOGIC_H
 
 #define GAME_COLUMNS 8
-#define GAME_ROWS 8
-#define GAME_WIDTH 300
-#define GAME_HEIGHT 400
+#define GAME_ROWS 14
+#define GAME_WIDTH (GAME_COLUMNS * BLOCK_SIZE)
+#define GAME_HEIGHT (GAME_ROWS * BLOCK_SIZE)
 #define BLOCK_SIZE 25
 
 typedef struct
@@ -18,10 +18,12 @@ typedef struct
 
 typedef struct
 {
-    GridValue fixedBlocks[GAME_COLUMNS][GAME_ROWS];
+    GridValue fixedBlocks[GAME_ROWS][GAME_COLUMNS];
+    int numberFixedBlocks;
     Piece *activePiece;
     Piece *nextPiece;
     int score;
+    int gameOver;
 } GameData;
 
 GameData *initialize(GameConfig *config);

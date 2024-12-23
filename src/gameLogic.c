@@ -7,14 +7,21 @@
 
 #define FALL_FRAME_DURATION 2
 
+typedef enum
+{
+    Free,
+    Fixed,
+    GameOver
+} ActivePieceStatus;
+
 void print_game_data(GameData *game);
 void print_piece(Piece *piece);
 Piece *create_random_piece(GameConfig *config);
 void destory_game_data();
 void destory_piece(Piece *piece);
-int is_active_piece_fixed(GameData *gameData);
-void add_active_piece_to_fixed(GameData *gameData);
+ActivePieceStatus get_active_piece_status(GameData *gameData);
 void create_new_actice_piece(GameData *gameData, GameConfig *config);
+void add_active_piece_to_fixed(GameData *gameData);
 
 int frame_counter = 0;
 
@@ -25,29 +32,30 @@ GameData *initialize(GameConfig *config)
 
     gameData->activePiece = create_random_piece(config);
     gameData->nextPiece = create_random_piece(config);
+    gameData->gameOver = 1;
 
     return gameData;
 }
 
 void print_game_data(GameData *game)
 {
-    printf("Game State:\n");
-    printf("Score: %d\n\n", game->score);
+    g_print("Game State:\n");
+    g_print("Score: %d\n\n", game->score);
 
-    printf("Fixed Blocks:\n");
+    g_print("Fixed Blocks:\n");
     for (int y = 0; y < GAME_ROWS; y++)
     {
         for (int x = 0; x < GAME_COLUMNS; x++)
         {
-            printf("%d ", game->fixedBlocks[x][y]);
+            g_print("%d ", game->fixedBlocks[y][x]);
         }
-        printf("\n");
+        g_print("\n");
     }
 
     printf("\nActive Piece:\n");
     print_piece(game->activePiece);
 
-    printf("\nNext Piece:\n");
+    g_print("\nNext Piece:\n");
     print_piece(game->nextPiece);
 }
 
@@ -63,10 +71,17 @@ void nextMove(GameData *gameData, GameConfig *config)
         let_piece_fall_down(gameData);
     }
 
-    if (is_active_piece_fixed(gameData) == 0)
+    ActivePieceStatus activePieceStatus = get_active_piece_status(gameData);
+    if (activePieceStatus == Fixed)
     {
         add_active_piece_to_fixed(gameData);
         create_new_actice_piece(gameData, config);
+    }
+    else if (activePieceStatus == GameOver)
+    {
+        gameData->gameOver = 0;
+        print_game_data(gameData);
+        g_print("GameOver");
     }
 
     frame_counter++;
@@ -80,6 +95,7 @@ void add_active_piece_to_fixed(GameData *gameData)
         int col = p.x / BLOCK_SIZE;
         int row = p.y / BLOCK_SIZE;
         gameData->fixedBlocks[row][col] = gameData->activePiece->value;
+        gameData->numberFixedBlocks++;
     }
     destory_piece(gameData->activePiece);
 }
@@ -90,14 +106,14 @@ void create_new_actice_piece(GameData *gameData, GameConfig *config)
     gameData->nextPiece = create_random_piece(config);
 }
 
-int is_active_piece_fixed(GameData *gameData)
+ActivePieceStatus get_active_piece_status(GameData *gameData)
 {
     for (size_t i = 0; i < gameData->activePiece->numberOfBlocks; i++)
     {
         Point p = gameData->activePiece->blocks[i];
         if (p.y + BLOCK_SIZE == GAME_HEIGHT)
         {
-            return 0;
+            return Fixed;
         }
 
         for (size_t row = 0; row < GAME_ROWS; row++)
@@ -109,32 +125,35 @@ int is_active_piece_fixed(GameData *gameData)
                     continue;
                 }
 
-                if (p.x == row * BLOCK_SIZE && p.y + BLOCK_SIZE == row * BLOCK_SIZE)
+                if (p.x == col * BLOCK_SIZE && p.y + BLOCK_SIZE == row * BLOCK_SIZE)
                 {
-                    return 0;
+                    return Fixed;
+                }
+
+                if (p.x == col * BLOCK_SIZE && p.y == row * BLOCK_SIZE)
+                {
+                    return GameOver;
                 }
             }
         }
     }
 
-    return 1;
+    return Free;
 }
 
 void print_piece(Piece *piece)
 {
-    printf("Value: %d\n", piece->value);
+    g_print("Value: %d\n", piece->value);
     for (int i = 0; i < piece->numberOfBlocks; i++)
     {
-        printf("Position %d: (%d, %d)\n", i, piece->blocks[i].x, piece->blocks[i].y);
+        g_print("Position %d: (%d, %d)\n", i, piece->blocks[i].x, piece->blocks[i].y);
     }
 }
 
 Piece *create_random_piece(GameConfig *config)
 {
     int randomColorPosition = rand() % config->colorsCount;
-    printf("randomColorPostion: %d", randomColorPosition);
     ColorConfig randomColorConfig = config->colors[randomColorPosition];
-    printf("randomColor: %d", randomColorConfig.key);
     int randomPiecePosition = rand() % config->piecesCount;
     Point *randomPieceConfig = config->pieces[randomPiecePosition];
     int numberOfBlocksInRandomPiece = config->pieceSizes[randomPiecePosition];

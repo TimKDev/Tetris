@@ -4,17 +4,12 @@
 #include <gtk/gtk.h>
 #include "gameLogic.h"
 
-typedef struct FixedBlockNode
-{
-    GtkWidget *block;
-    struct FixedBlockNode *previous;
-} FixedBlockNode;
-
 typedef struct
 {
     GtkWidget **activeBlockWidgets;
     int numberActiveBlocks;
-    FixedBlockNode *fixedBlockWidgets;
+    GtkWidget **fixedBlockWidgets;
+    int numberFixedBlocks;
 } RenderState;
 
 typedef struct

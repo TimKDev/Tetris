@@ -28,7 +28,6 @@ GtkWidget *create_game_page(GtkWidget *window)
 
     GameConfig *config = load_config_from_file("config/game.json");
     GameData *game_data = initialize(config);
-    print_game_data(game_data);
 
     // Create horizontal box container for main layout
     box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 20);
@@ -95,6 +94,11 @@ static gboolean update_game(GameContext *gameContext)
 {
     nextMove(gameContext->game_data, gameContext->config);
     render_game_data(gameContext);
+    if (gameContext->game_data->gameOver == 0)
+    {
+        // Print Modal mit Game Over, der Punktzahl und einem Close Button der einen zur ersten Seite zurückleitet.
+        return G_SOURCE_REMOVE;
+    }
     return G_SOURCE_CONTINUE; // Return TRUE to keep the timer running
 }
 

@@ -74,7 +74,7 @@ int is_x_position_valid(GameData *gameData, int xOffset)
                     continue;
                 }
 
-                if (col * BLOCK_SIZE <= p.y && p.y <= col * (BLOCK_SIZE + 1) && p.x + BLOCK_SIZE >= col * BLOCK_SIZE)
+                if (row * BLOCK_SIZE <= p.y && p.y <= row * (BLOCK_SIZE + 1) && p.x + BLOCK_SIZE >= col * BLOCK_SIZE)
                 {
                     return 1;
                 }
@@ -109,7 +109,7 @@ int get_allowed_y_offset(GameData *gameData, int yOffset)
                     continue;
                 }
 
-                if (p.x == row * BLOCK_SIZE && p.y + BLOCK_SIZE + yOffset >= row * BLOCK_SIZE)
+                if (p.x == col * BLOCK_SIZE && p.y + BLOCK_SIZE + yOffset >= row * BLOCK_SIZE)
                 {
                     return row * BLOCK_SIZE - p.y - BLOCK_SIZE;
                 }

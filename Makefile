@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = `pkg-config --cflags gtk4` -I./$(HEADERDIR)
+CFLAGS = `pkg-config --cflags gtk4` -I./$(HEADERDIR) -g -DDEBUG -O0
 LIBS = `pkg-config --libs gtk4` -ljson-c
 
 TARGET = tetris
@@ -16,8 +16,9 @@ OBJS = $(patsubst $(SRCDIR)/%.c,$(OBJDIR)/%.o,$(SRCS))
 
 INCLUDES = -I./$(HEADERDIR)
 
-run: $(TARGET)
-	./$(TARGET)
+#When using VSC to debug this the following lines needed to be removed. 
+#run: $(TARGET)
+#	./$(TARGET)
 
 # Link object files to create executable
 $(TARGET): $(OBJS)

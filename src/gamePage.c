@@ -2,6 +2,9 @@
 #include "gameLogic.h"
 #include "renderLogic.h"
 #include "gameConfig.h"
+#include "blockMovement.h"
+
+#define BORDER_WIDTH 10
 
 static gboolean update_game(GameContext *data);
 void setup_key_controls(GtkWidget *window, GameContext *context);
@@ -36,14 +39,21 @@ GtkWidget *create_game_page(GtkWidget *window)
 
     // Create game area (left side)
     game_area = gtk_fixed_new();
-    gtk_widget_set_size_request(game_area, 300, 400);
+    gtk_widget_set_size_request(game_area, GAME_WIDTH + 2 * BORDER_WIDTH, GAME_HEIGHT + 2 * BORDER_WIDTH);
     gtk_widget_add_css_class(game_area, "game-area");
+
+    // Make the widget non-expandable
+    gtk_widget_set_halign(game_area, GTK_ALIGN_START);
+    gtk_widget_set_valign(game_area, GTK_ALIGN_START);
+    gtk_widget_set_hexpand(game_area, FALSE);
+    gtk_widget_set_vexpand(game_area, FALSE);
 
     RenderState *render_state = create_render_state();
     GameContext *game_context = (GameContext *)malloc(sizeof(GameContext));
     game_context->game_area = game_area;
     game_context->game_data = game_data;
     game_context->render_state = render_state;
+    game_context->config = config;
 
     // Das macht den Code irgendwie langsam und funktioniert nicht.
     GtkEventController *key_controller = gtk_event_controller_key_new();
@@ -83,7 +93,7 @@ GtkWidget *create_game_page(GtkWidget *window)
 
 static gboolean update_game(GameContext *gameContext)
 {
-    nextMove(gameContext->game_data);
+    nextMove(gameContext->game_data, gameContext->config);
     render_game_data(gameContext);
     return G_SOURCE_CONTINUE; // Return TRUE to keep the timer running
 }
@@ -114,7 +124,7 @@ static gboolean on_key_pressed(GtkEventControllerKey *controller,
 
     case GDK_KEY_Down:
         // Handle down arrow
-        printf("Down arrow pressed\n");
+        move_piece_down(context->game_data);
         break;
 
     default:

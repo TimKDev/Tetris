@@ -3,6 +3,8 @@
 #include "renderLogic.h"
 #include "gameLogic.h"
 
+#define BORDER_BLOCK 2
+
 char *getColorFromGridValue(GridValue value);
 
 RenderState *create_render_state(void)

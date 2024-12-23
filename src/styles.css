@@ -10,7 +10,7 @@ button {
 
 .game-area {
     background-color: #000000;
-    border: 2px solid #333333;
+    border: 10px solid #3f3f3f;
 }
 
 .next-piece {
@@ -21,7 +21,7 @@ button {
 .score-label {
     font-size: 18px;
     font-weight: bold;
-} 
+}
 
 .block {
     border: 2px solid #333333;

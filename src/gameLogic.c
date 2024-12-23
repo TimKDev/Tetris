@@ -1,21 +1,20 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
+#include <glib.h>
 #include "../header/gameLogic.h"
+#include "../header/blockMovement.h"
 
-#define FALL_VELOCITY 1
 #define FALL_FRAME_DURATION 2
 
-GameData *initialize();
 void print_game_data(GameData *game);
-void clean_up();
-void nextMove();
 void print_piece(Piece *piece);
-Piece *create_random_piece();
-void move_piece_down(GameData *gameData, int yOffset);
+Piece *create_random_piece(GameConfig *config);
 void destory_game_data();
-void move_piece_left(GameData *gameData);
-void move_piece_right(GameData *gameData);
+void destory_piece(Piece *piece);
+int is_active_piece_fixed(GameData *gameData);
+void add_active_piece_to_fixed(GameData *gameData);
+void create_new_actice_piece(GameData *gameData, GameConfig *config);
 
 int frame_counter = 0;
 
@@ -36,9 +35,9 @@ void print_game_data(GameData *game)
     printf("Score: %d\n\n", game->score);
 
     printf("Fixed Blocks:\n");
-    for (int y = 0; y < GAME_HEIGHT; y++)
+    for (int y = 0; y < GAME_ROWS; y++)
     {
-        for (int x = 0; x < GAME_WIDTH; x++)
+        for (int x = 0; x < GAME_COLUMNS; x++)
         {
             printf("%d ", game->fixedBlocks[x][y]);
         }
@@ -57,38 +56,68 @@ void clean_up()
     destory_game_data();
 }
 
-void nextMove(GameData *gameData)
+void nextMove(GameData *gameData, GameConfig *config)
 {
     if (frame_counter % FALL_FRAME_DURATION)
     {
-        move_piece_down(gameData, FALL_VELOCITY);
+        let_piece_fall_down(gameData);
+    }
+
+    if (is_active_piece_fixed(gameData) == 0)
+    {
+        add_active_piece_to_fixed(gameData);
+        create_new_actice_piece(gameData, config);
     }
 
     frame_counter++;
 }
 
-void move_piece_down(GameData *gameData, int yOffset)
+void add_active_piece_to_fixed(GameData *gameData)
 {
-    for (int i = 0; i < gameData->activePiece->numberOfBlocks; i++)
+    for (size_t i = 0; i < gameData->activePiece->numberOfBlocks; i++)
     {
-        gameData->activePiece->blocks[i].y += yOffset;
+        Point p = gameData->activePiece->blocks[i];
+        int col = p.x / BLOCK_SIZE;
+        int row = p.y / BLOCK_SIZE;
+        gameData->fixedBlocks[row][col] = gameData->activePiece->value;
     }
+    destory_piece(gameData->activePiece);
 }
 
-void move_piece_right(GameData *gameData)
+void create_new_actice_piece(GameData *gameData, GameConfig *config)
 {
-    for (int i = 0; i < gameData->activePiece->numberOfBlocks; i++)
-    {
-        gameData->activePiece->blocks[i].x += BLOCK_SIZE;
-    }
+    gameData->activePiece = gameData->nextPiece;
+    gameData->nextPiece = create_random_piece(config);
 }
 
-void move_piece_left(GameData *gameData)
+int is_active_piece_fixed(GameData *gameData)
 {
-    for (int i = 0; i < gameData->activePiece->numberOfBlocks; i++)
+    for (size_t i = 0; i < gameData->activePiece->numberOfBlocks; i++)
     {
-        gameData->activePiece->blocks[i].x -= BLOCK_SIZE;
+        Point p = gameData->activePiece->blocks[i];
+        if (p.y + BLOCK_SIZE == GAME_HEIGHT)
+        {
+            return 0;
+        }
+
+        for (size_t row = 0; row < GAME_ROWS; row++)
+        {
+            for (size_t col = 0; col < GAME_COLUMNS; col++)
+            {
+                if (gameData->fixedBlocks[row][col] == Empty)
+                {
+                    continue;
+                }
+
+                if (p.x == row * BLOCK_SIZE && p.y + BLOCK_SIZE == row * BLOCK_SIZE)
+                {
+                    return 0;
+                }
+            }
+        }
     }
+
+    return 1;
 }
 
 void print_piece(Piece *piece)
@@ -125,6 +154,12 @@ Piece *create_random_piece(GameConfig *config)
     }
 
     return result;
+}
+
+void destory_piece(Piece *piece)
+{
+    free(piece->blocks);
+    free(piece);
 }
 
 void destory_game_data()

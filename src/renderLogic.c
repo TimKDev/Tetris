@@ -30,19 +30,28 @@ void render_game_data(GameContext *context)
 
 void render_active_piece(GameContext *context)
 {
+    if (!context || !context->render_state || !context->game_area)
+    {
+        g_error("Invalid context in render_active_piece");
+        return;
+    }
+
     for (int i = 0; i < context->render_state->numberActiveBlocks; i++)
     {
-        if (context->render_state->activeBlockWidgets[i] != NULL)
+        if (context->render_state->activeBlockWidgets[i])
         {
-            gtk_fixed_remove(GTK_FIXED(context->game_area), context->render_state->activeBlockWidgets[i]);
+            GtkWidget *widget = context->render_state->activeBlockWidgets[i];
+            gtk_fixed_remove(GTK_FIXED(context->game_area), widget);
+            widget = NULL;
         }
     }
 
-    size_t new_size = context->game_data->activePiece->numberOfBlocks;
+    size_t new_number_active_blocks = context->game_data->activePiece->numberOfBlocks;
+    size_t old_number_active_blocks = context->render_state->numberActiveBlocks;
 
-    if (context->render_state->numberActiveBlocks < new_size)
+    if (old_number_active_blocks < new_number_active_blocks)
     {
-        GtkWidget **new_widgets = (GtkWidget **)realloc(context->render_state->activeBlockWidgets, new_size * sizeof(GtkWidget *));
+        GtkWidget **new_widgets = (GtkWidget **)realloc(context->render_state->activeBlockWidgets, new_number_active_blocks * sizeof(GtkWidget *));
 
         if (new_widgets == NULL)
         {
@@ -51,10 +60,10 @@ void render_active_piece(GameContext *context)
         }
 
         context->render_state->activeBlockWidgets = new_widgets;
-        context->render_state->numberActiveBlocks = new_size;
+        context->render_state->numberActiveBlocks = new_number_active_blocks;
     }
 
-    for (int i = 0; i < context->game_data->activePiece->numberOfBlocks; i++)
+    for (int i = 0; i < new_number_active_blocks; i++)
     {
         Piece *activePiece = context->game_data->activePiece;
         GtkWidget *block = add_block_to_game(context->game_area, activePiece->blocks[i].x, activePiece->blocks[i].y, activePiece->value);
@@ -64,11 +73,19 @@ void render_active_piece(GameContext *context)
 
 void render_fixed_blocks(GameContext *context)
 {
+    if (!context || !context->render_state || !context->game_area)
+    {
+        g_error("Invalid context in render_fixed_blocks");
+        return;
+    }
+
     for (int i = 0; i < context->render_state->numberFixedBlocks; i++)
     {
-        if (context->render_state->fixedBlockWidgets[i] != NULL)
+        if (context->render_state->fixedBlockWidgets[i])
         {
-            gtk_fixed_remove(GTK_FIXED(context->game_area), context->render_state->fixedBlockWidgets[i]);
+            GtkWidget *widget = context->render_state->fixedBlockWidgets[i];
+            gtk_fixed_remove(GTK_FIXED(context->game_area), widget);
+            context->render_state->fixedBlockWidgets[i] = NULL;
         }
     }
 
@@ -81,8 +98,16 @@ void render_fixed_blocks(GameContext *context)
         return;
     }
 
+    if (newSize > context->render_state->numberFixedBlocks)
+    {
+        for (size_t i = context->render_state->numberFixedBlocks; i < newSize; i++)
+        {
+            new_widgets[i] = NULL;
+        }
+    }
+
     context->render_state->fixedBlockWidgets = new_widgets;
-    context->render_state->numberFixedBlocks = context->game_data->numberFixedBlocks;
+    context->render_state->numberFixedBlocks = newSize;
 
     int counter = 0;
     for (size_t row = 0; row < GAME_ROWS; row++)

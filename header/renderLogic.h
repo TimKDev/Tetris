@@ -18,10 +18,11 @@ typedef struct
     GameData *game_data;
     RenderState *render_state;
     GameConfig *config;
+    bool is_paused;
 } GameContext;
 
 RenderState *create_render_state(void);
-void destroy_render_state(RenderState *state);
+void destroy_render_state(RenderState *state, GtkWidget *gameArea);
 void render_game_data(GameContext *context);
 
 #endif

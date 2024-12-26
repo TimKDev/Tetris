@@ -13,9 +13,10 @@ static gboolean on_key_pressed(GtkEventControllerKey *controller,
                                guint keycode,
                                GdkModifierType state,
                                gpointer user_data);
-
-static int y_position = 200;
-GtkWidget **moving_blocks = NULL;
+static void on_pause_button_clicked(GtkButton *button, gpointer user_data);
+GameContext *create_game_context(GtkWidget *gameArea);
+void destroy_game_context(GameContext *gameContext);
+static void on_restart_button_clicked(GtkButton *button, gpointer user_data);
 
 GtkWidget *create_game_page(GtkWidget *window)
 {
@@ -25,9 +26,6 @@ GtkWidget *create_game_page(GtkWidget *window)
     GtkWidget *score_label;
     GtkWidget *next_piece_label;
     static int counter = 0;
-
-    GameConfig *config = load_config_from_file("config/game.json");
-    GameData *game_data = initialize(config);
 
     // Create horizontal box container for main layout
     box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 20);
@@ -47,14 +45,8 @@ GtkWidget *create_game_page(GtkWidget *window)
     gtk_widget_set_hexpand(game_area, FALSE);
     gtk_widget_set_vexpand(game_area, FALSE);
 
-    RenderState *render_state = create_render_state();
-    GameContext *game_context = (GameContext *)malloc(sizeof(GameContext));
-    game_context->game_area = game_area;
-    game_context->game_data = game_data;
-    game_context->render_state = render_state;
-    game_context->config = config;
+    GameContext *game_context = create_game_context(game_area);
 
-    // Das macht den Code irgendwie langsam und funktioniert nicht.
     GtkEventController *key_controller = gtk_event_controller_key_new();
     g_signal_connect(key_controller, "key-pressed", G_CALLBACK(on_key_pressed), game_context);
     gtk_widget_add_controller(window, key_controller);
@@ -83,6 +75,20 @@ GtkWidget *create_game_page(GtkWidget *window)
     gtk_box_append(GTK_BOX(side_panel), next_piece_label);
     gtk_box_append(GTK_BOX(side_panel), next_piece_area);
 
+    // Create pause button
+    GtkWidget *pause_button = gtk_button_new_with_label("Pause");
+    gtk_widget_set_halign(pause_button, GTK_ALIGN_START);
+    g_signal_connect(pause_button, "clicked", G_CALLBACK(on_pause_button_clicked), game_context);
+
+    // Create restart button
+    GtkWidget *restart_button = gtk_button_new_with_label("Restart");
+    gtk_widget_set_halign(restart_button, GTK_ALIGN_START);
+    g_signal_connect(restart_button, "clicked", G_CALLBACK(on_restart_button_clicked), game_context);
+
+    // Add elements to side panel (add this after other side panel elements)
+    gtk_box_append(GTK_BOX(side_panel), pause_button);
+    gtk_box_append(GTK_BOX(side_panel), restart_button);
+
     // Add main elements to box
     gtk_box_append(GTK_BOX(box), game_area);
     gtk_box_append(GTK_BOX(box), side_panel);
@@ -92,14 +98,16 @@ GtkWidget *create_game_page(GtkWidget *window)
 
 static gboolean update_game(GameContext *gameContext)
 {
-    nextMove(gameContext->game_data, gameContext->config);
-    render_game_data(gameContext);
-    if (gameContext->game_data->gameOver == 0)
+    if (!gameContext->is_paused)
     {
-        // Print Modal mit Game Over, der Punktzahl und einem Close Button der einen zur ersten Seite zurückleitet.
-        return G_SOURCE_REMOVE;
+        nextMove(gameContext->game_data, gameContext->config);
+        render_game_data(gameContext);
+        if (gameContext->game_data->gameOver == true)
+        {
+            gameContext->is_paused;
+        }
     }
-    return G_SOURCE_CONTINUE; // Return TRUE to keep the timer running
+    return G_SOURCE_CONTINUE;
 }
 
 // Callback function for key events
@@ -110,6 +118,11 @@ static gboolean on_key_pressed(GtkEventControllerKey *controller,
                                gpointer user_data)
 {
     GameContext *context = (GameContext *)user_data;
+
+    if (context->is_paused)
+    {
+        return FALSE;
+    }
 
     switch (keyval)
     {
@@ -122,12 +135,10 @@ static gboolean on_key_pressed(GtkEventControllerKey *controller,
         break;
 
     case GDK_KEY_Up:
-        // Handle up arrow
         printf("Up arrow pressed\n");
         break;
 
     case GDK_KEY_Down:
-        // Handle down arrow
         move_piece_down(context->game_data);
         break;
 
@@ -135,7 +146,69 @@ static gboolean on_key_pressed(GtkEventControllerKey *controller,
         return FALSE; // Event not handled
     }
 
-    // Trigger a re-render if needed
     render_game_data(context);
     return TRUE; // Event handled
+}
+
+static void on_pause_button_clicked(GtkButton *button, gpointer user_data)
+{
+    GameContext *context = (GameContext *)user_data;
+    context->is_paused = !context->is_paused;
+    const char *new_label = context->is_paused ? "Resume" : "Pause";
+    gtk_button_set_label(button, new_label);
+}
+
+static void on_restart_button_clicked(GtkButton *button, gpointer user_data)
+{
+    GameContext *context = (GameContext *)user_data;
+    GtkWidget *gameArea = context->game_area;
+
+    if (context->render_state)
+    {
+        destroy_render_state(context->render_state, gameArea);
+        context->render_state = NULL;
+    }
+
+    if (context->game_data)
+    {
+        destory_game_data(context->game_data);
+        context->game_data = NULL;
+    }
+
+    if (context->config)
+    {
+        destroy_game_config(context->config);
+        context->config = NULL;
+    }
+
+    context->config = load_config_from_file("config/game.json");
+    context->game_data = initialize(context->config);
+    context->render_state = create_render_state();
+    context->is_paused = false;
+
+    render_game_data(context);
+}
+
+GameContext *create_game_context(GtkWidget *gameArea)
+{
+    GameConfig *config = load_config_from_file("config/game.json");
+    GameData *game_data = initialize(config);
+    RenderState *render_state = create_render_state();
+    GameContext *game_context = (GameContext *)malloc(sizeof(GameContext));
+    game_context->game_area = gameArea;
+    game_context->game_data = game_data;
+    game_context->render_state = render_state;
+    game_context->config = config;
+    game_context->is_paused = false;
+
+    return game_context;
+}
+
+void destroy_game_context(GameContext *gameContext)
+{
+    destroy_game_config(gameContext->config);
+    destory_game_data(gameContext->game_data);
+    destroy_render_state(gameContext->render_state, gameContext->game_area);
+    free(gameContext);
+    gameContext = NULL;
 }

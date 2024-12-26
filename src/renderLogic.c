@@ -15,12 +15,41 @@ RenderState *create_render_state(void)
     return (RenderState *)calloc(1, sizeof(RenderState));
 }
 
-void destroy_render_state(RenderState *state)
+void destroy_render_state(RenderState *state, GtkWidget *gameArea)
 {
+    if (state == NULL)
+    {
+        return;
+    }
+    for (int i = 0; i < state->numberActiveBlocks; i++)
+    {
+        if (state->activeBlockWidgets[i])
+        {
+            GtkWidget *widget = state->activeBlockWidgets[i];
+            gtk_fixed_remove(GTK_FIXED(gameArea), widget);
+            widget = NULL;
+        }
+    }
+    for (int i = 0; i < state->numberFixedBlocks; i++)
+    {
+        if (state->fixedBlockWidgets[i])
+        {
+            GtkWidget *widget = state->fixedBlockWidgets[i];
+            gtk_fixed_remove(GTK_FIXED(gameArea), widget);
+            widget = NULL;
+        }
+    }
+
+    free(state);
+    state = NULL;
 }
 
 void render_game_data(GameContext *context)
 {
+    if (context == NULL)
+    {
+        return;
+    }
     render_active_piece(context);
     if (context->game_data->numberFixedBlocks != context->render_state->numberFixedBlocks)
     {

@@ -32,7 +32,7 @@ GameData *initialize(GameConfig *config)
 
     gameData->activePiece = create_random_piece(config);
     gameData->nextPiece = create_random_piece(config);
-    gameData->gameOver = 1;
+    gameData->gameOver = false;
 
     return gameData;
 }
@@ -59,11 +59,6 @@ void print_game_data(GameData *game)
     print_piece(game->nextPiece);
 }
 
-void clean_up()
-{
-    destory_game_data();
-}
-
 void nextMove(GameData *gameData, GameConfig *config)
 {
     if (frame_counter % FALL_FRAME_DURATION)
@@ -72,14 +67,16 @@ void nextMove(GameData *gameData, GameConfig *config)
     }
 
     ActivePieceStatus activePieceStatus = get_active_piece_status(gameData);
+    ActivePieceStatus statusOfNewPiece = Free;
     if (activePieceStatus == Fixed)
     {
         add_active_piece_to_fixed(gameData);
         create_new_actice_piece(gameData, config);
+        statusOfNewPiece = get_active_piece_status(gameData);
     }
-    else if (activePieceStatus == GameOver)
+    if (activePieceStatus == GameOver || statusOfNewPiece == GameOver)
     {
-        gameData->gameOver = 0;
+        gameData->gameOver = true;
         print_game_data(gameData);
         g_print("GameOver");
     }
@@ -181,7 +178,14 @@ void destory_piece(Piece *piece)
     free(piece);
 }
 
-void destory_game_data()
+void destory_game_data(GameData *gameData)
 {
-    // Hier kommt die free Logik rein für die GameData
+    if (gameData == NULL)
+    {
+        return;
+    }
+    free(gameData->activePiece);
+    free(gameData->nextPiece);
+    free(gameData);
+    gameData = NULL;
 }

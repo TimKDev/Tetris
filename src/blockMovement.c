@@ -42,8 +42,7 @@ void y_move_piece_by_offset(GameData *gameData, int yOffset)
 {
     for (int i = 0; i < gameData->activePiece->numberOfBlocks; i++)
     {
-        int newValue = gameData->activePiece->blocks[i].y + yOffset;
-        gameData->activePiece->blocks[i].y = newValue;
+        gameData->activePiece->blocks[i].y += yOffset;
     }
 }
 
@@ -51,8 +50,7 @@ void x_move_piece_by_offset(GameData *gameData, int xOffset)
 {
     for (int i = 0; i < gameData->activePiece->numberOfBlocks; i++)
     {
-        int newValue = gameData->activePiece->blocks[i].x + xOffset;
-        gameData->activePiece->blocks[i].x = newValue;
+        gameData->activePiece->blocks[i].x += xOffset;
     }
 }
 
@@ -111,7 +109,12 @@ int get_allowed_y_offset(GameData *gameData, int yOffset)
 
                 if (p.x == col * BLOCK_SIZE && p.y + BLOCK_SIZE + yOffset >= row * BLOCK_SIZE)
                 {
-                    return row * BLOCK_SIZE - p.y - BLOCK_SIZE;
+                    int correctionValue = row * BLOCK_SIZE - p.y - BLOCK_SIZE;
+                    if (correctionValue < 0 && yOffset < 0 || correctionValue > 0 && yOffset > 0 || correctionValue == 0)
+                    {
+                        // This check is important in order for tetris caves to work. Otherwise the block is set always on top and jumps.
+                        return correctionValue;
+                    }
                 }
             }
         }

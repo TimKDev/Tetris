@@ -1,4 +1,5 @@
 #include "gameConfig.h"
+#include "stdbool.h"
 
 #ifndef GAME_LOGIC_H
 #define GAME_LOGIC_H
@@ -23,14 +24,14 @@ typedef struct
     Piece *activePiece;
     Piece *nextPiece;
     int score;
-    int gameOver;
+    bool gameOver;
 } GameData;
 
 GameData *initialize(GameConfig *config);
 
 void print_game_data(GameData *game);
 
-void clean_up();
+void destory_game_data(GameData *gameData);
 
 void nextMove(GameData *gameData, GameConfig *config);
 

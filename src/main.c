@@ -16,14 +16,14 @@ static void apply_css(void)
     g_object_unref(provider);
 }
 
-static void print_play(GtkWidget *widget, gpointer data)
+static void click_play_button(GtkWidget *widget, gpointer data)
 {
     gtk_window_set_child(GTK_WINDOW(window), NULL);
     GtkWidget *gamePage = create_game_page(window);
     gtk_window_set_child(GTK_WINDOW(window), gamePage);
 }
 
-static void print_help(GtkWidget *widget, gpointer data)
+static void click_help_button(GtkWidget *widget, gpointer data)
 {
     g_print("Help\n");
 }
@@ -35,14 +35,14 @@ static void activate(GtkApplication *app, gpointer user_data)
     gtk_window_set_title(GTK_WINDOW(window), "Tetris");
     gtk_window_set_default_size(GTK_WINDOW(window), 800, 500);
 
-    startingPage = create_starting_page(print_play, print_help);
+    startingPage = create_starting_page(click_play_button, click_help_button);
 
     gtk_window_set_child(GTK_WINDOW(window), startingPage);
     gtk_window_present(GTK_WINDOW(window));
 }
 
 int main(int argc, char **argv)
-{ 
+{
     GtkApplication *app = gtk_application_new("org.example.hello", G_APPLICATION_DEFAULT_FLAGS);
     g_signal_connect(app, "activate", G_CALLBACK(activate), NULL);
     int status = g_application_run(G_APPLICATION(app), argc, argv);

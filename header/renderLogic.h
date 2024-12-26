@@ -14,11 +14,13 @@ typedef struct
 
 typedef struct
 {
+    GtkWidget *game_page;
     GtkWidget *game_area;
     GameData *game_data;
     RenderState *render_state;
     GameConfig *config;
     bool is_paused;
+    void (*quit_callback)(GtkWidget *gamePage);
 } GameContext;
 
 RenderState *create_render_state(void);

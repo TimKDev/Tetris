@@ -6,6 +6,10 @@
 static GtkWidget *window;
 static GtkWidget *startingPage;
 
+static void click_quit_game_button(GtkWidget *gamePage);
+static void click_help_button(GtkWidget *widget, gpointer data);
+static void click_play_button(GtkWidget *widget, gpointer data);
+
 static void apply_css(void)
 {
     GtkCssProvider *provider = gtk_css_provider_new();
@@ -19,8 +23,17 @@ static void apply_css(void)
 static void click_play_button(GtkWidget *widget, gpointer data)
 {
     gtk_window_set_child(GTK_WINDOW(window), NULL);
-    GtkWidget *gamePage = create_game_page(window);
+    GtkWidget *gamePage = create_game_page(window, click_quit_game_button);
     gtk_window_set_child(GTK_WINDOW(window), gamePage);
+}
+
+static void click_quit_game_button(GtkWidget *gamePage)
+{
+    startingPage = create_starting_page(click_play_button, click_help_button);
+    GtkWidget *window = GTK_WIDGET(gtk_widget_get_root(gamePage));
+    gtk_window_set_child(GTK_WINDOW(window), startingPage);
+    // Ist hier noch clean up nötig für den GameContext.
+    // Muss in den GameContext überhaupt die Mainpage oder passt das auch mit der GameArea?
 }
 
 static void click_help_button(GtkWidget *widget, gpointer data)

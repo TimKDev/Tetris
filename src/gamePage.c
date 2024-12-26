@@ -14,13 +14,18 @@ static gboolean on_key_pressed(GtkEventControllerKey *controller,
                                GdkModifierType state,
                                gpointer user_data);
 static void on_pause_button_clicked(GtkButton *button, gpointer user_data);
-GameContext *create_game_context(GtkWidget *gameArea);
+GameContext *create_game_context(GtkWidget *gamePage, GtkWidget *gameArea, void (*quitCallback)(GtkWidget *widget));
 void destroy_game_context(GameContext *gameContext);
+void restart_game(GameContext *context);
 static void on_restart_button_clicked(GtkButton *button, gpointer user_data);
+static void on_game_over_response(GtkDialog *dialog, int response, gpointer user_data);
+static void on_quit_button_clicked(GtkButton *button, gpointer user_data);
+static void show_game_over_dialog(GameContext *context);
+void quit_game(GameContext *gameContext);
 
-GtkWidget *create_game_page(GtkWidget *window)
+GtkWidget *create_game_page(GtkWidget *window, void (*quitCallback)(GtkWidget *widget))
 {
-    GtkWidget *box;
+    GtkWidget *game_page;
     GtkWidget *game_area;
     GtkWidget *side_panel;
     GtkWidget *score_label;
@@ -28,11 +33,11 @@ GtkWidget *create_game_page(GtkWidget *window)
     static int counter = 0;
 
     // Create horizontal box container for main layout
-    box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 20);
-    gtk_widget_set_margin_start(box, 20);
-    gtk_widget_set_margin_end(box, 20);
-    gtk_widget_set_margin_top(box, 20);
-    gtk_widget_set_margin_bottom(box, 20);
+    game_page = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 20);
+    gtk_widget_set_margin_start(game_page, 20);
+    gtk_widget_set_margin_end(game_page, 20);
+    gtk_widget_set_margin_top(game_page, 20);
+    gtk_widget_set_margin_bottom(game_page, 20);
 
     // Create game area (left side)
     game_area = gtk_fixed_new();
@@ -45,7 +50,7 @@ GtkWidget *create_game_page(GtkWidget *window)
     gtk_widget_set_hexpand(game_area, FALSE);
     gtk_widget_set_vexpand(game_area, FALSE);
 
-    GameContext *game_context = create_game_context(game_area);
+    GameContext *game_context = create_game_context(game_page, game_area, quitCallback);
 
     GtkEventController *key_controller = gtk_event_controller_key_new();
     g_signal_connect(key_controller, "key-pressed", G_CALLBACK(on_key_pressed), game_context);
@@ -85,15 +90,21 @@ GtkWidget *create_game_page(GtkWidget *window)
     gtk_widget_set_halign(restart_button, GTK_ALIGN_START);
     g_signal_connect(restart_button, "clicked", G_CALLBACK(on_restart_button_clicked), game_context);
 
+    // Create quit button
+    GtkWidget *quit_button = gtk_button_new_with_label("Quit");
+    gtk_widget_set_halign(quit_button, GTK_ALIGN_START);
+    g_signal_connect(quit_button, "clicked", G_CALLBACK(on_quit_button_clicked), game_context);
+
     // Add elements to side panel (add this after other side panel elements)
     gtk_box_append(GTK_BOX(side_panel), pause_button);
     gtk_box_append(GTK_BOX(side_panel), restart_button);
+    gtk_box_append(GTK_BOX(side_panel), quit_button);
 
     // Add main elements to box
-    gtk_box_append(GTK_BOX(box), game_area);
-    gtk_box_append(GTK_BOX(box), side_panel);
+    gtk_box_append(GTK_BOX(game_page), game_area);
+    gtk_box_append(GTK_BOX(game_page), side_panel);
 
-    return box;
+    return game_page;
 }
 
 static gboolean update_game(GameContext *gameContext)
@@ -102,9 +113,10 @@ static gboolean update_game(GameContext *gameContext)
     {
         nextMove(gameContext->game_data, gameContext->config);
         render_game_data(gameContext);
-        if (gameContext->game_data->gameOver == true)
+        if (gameContext->game_data->gameOver)
         {
-            gameContext->is_paused;
+            gameContext->is_paused = true;
+            show_game_over_dialog(gameContext);
         }
     }
     return G_SOURCE_CONTINUE;
@@ -161,6 +173,17 @@ static void on_pause_button_clicked(GtkButton *button, gpointer user_data)
 static void on_restart_button_clicked(GtkButton *button, gpointer user_data)
 {
     GameContext *context = (GameContext *)user_data;
+    restart_game(context);
+}
+
+static void on_quit_button_clicked(GtkButton *button, gpointer user_data)
+{
+    GameContext *context = (GameContext *)user_data;
+    quit_game(context);
+}
+
+void restart_game(GameContext *context)
+{
     GtkWidget *gameArea = context->game_area;
 
     if (context->render_state)
@@ -189,7 +212,7 @@ static void on_restart_button_clicked(GtkButton *button, gpointer user_data)
     render_game_data(context);
 }
 
-GameContext *create_game_context(GtkWidget *gameArea)
+GameContext *create_game_context(GtkWidget *gamePage, GtkWidget *gameArea, void (*quitCallback)(GtkWidget *widget))
 {
     GameConfig *config = load_config_from_file("config/game.json");
     GameData *game_data = initialize(config);
@@ -200,6 +223,7 @@ GameContext *create_game_context(GtkWidget *gameArea)
     game_context->render_state = render_state;
     game_context->config = config;
     game_context->is_paused = false;
+    game_context->quit_callback = quitCallback;
 
     return game_context;
 }
@@ -211,4 +235,62 @@ void destroy_game_context(GameContext *gameContext)
     destroy_render_state(gameContext->render_state, gameContext->game_area);
     free(gameContext);
     gameContext = NULL;
+}
+
+static void show_game_over_dialog(GameContext *context)
+{
+    // Create dialog
+    GtkWidget *dialog = gtk_dialog_new_with_buttons(
+        "Game Over",
+        GTK_WINDOW(gtk_widget_get_root(context->game_area)),
+        GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
+        "Restart", GTK_RESPONSE_ACCEPT,
+        "Quit", GTK_RESPONSE_REJECT,
+        NULL);
+
+    // Create content area
+    GtkWidget *content_area = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
+
+    // Create score message
+    char score_text[100];
+    snprintf(score_text, sizeof(score_text), "Game Over!\nYour score: %d", context->game_data->score);
+    GtkWidget *label = gtk_label_new(score_text);
+    gtk_widget_set_margin_start(label, 20);
+    gtk_widget_set_margin_end(label, 20);
+    gtk_widget_set_margin_top(label, 20);
+    gtk_widget_set_margin_bottom(label, 20);
+
+    // Add label to dialog
+    gtk_box_append(GTK_BOX(content_area), label);
+
+    // Show dialog and handle response
+    g_signal_connect(dialog, "response", G_CALLBACK(on_game_over_response), context);
+    gtk_widget_show(dialog);
+}
+
+static void on_game_over_response(GtkDialog *dialog, int response, gpointer user_data)
+{
+    GameContext *context = (GameContext *)user_data;
+
+    if (response == GTK_RESPONSE_ACCEPT)
+    {
+        restart_game(context);
+    }
+    else
+    {
+        GtkWidget *window = GTK_WIDGET(gtk_widget_get_root(context->game_area));
+        gtk_window_destroy(GTK_WINDOW(window));
+    }
+
+    gtk_window_destroy(GTK_WINDOW(dialog));
+}
+
+void quit_game(GameContext *gameContext)
+{
+    destroy_game_config(gameContext->config);
+    destory_game_data(gameContext->game_data);
+    destroy_render_state(gameContext->render_state, gameContext->game_area);
+    gameContext->quit_callback(gameContext->game_page);
+    // free(gameContext);
+    // gameContext = NULL;
 }

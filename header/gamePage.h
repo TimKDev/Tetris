@@ -5,6 +5,6 @@
 #include <stdbool.h>
 
 // Function to create and return the game page box
-GtkWidget *create_game_page(GtkWidget *window);
+GtkWidget *create_game_page(GtkWidget *window, void (*quitCallback)(GtkWidget *widget));
 
 #endif

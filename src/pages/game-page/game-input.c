@@ -2,6 +2,7 @@
 #include "game-context.h"
 #include "game-logic.h"
 #include "render-logic.h"
+#include "block-rotation.h"
 
 gboolean handle_key_press(GtkEventControllerKey *controller,
                           guint keyval,
@@ -27,7 +28,7 @@ gboolean handle_key_press(GtkEventControllerKey *controller,
         break;
 
     case GDK_KEY_Up:
-        printf("Up arrow pressed\n");
+        rotation_active_piece_clockwise(context->game_data);
         break;
 
     case GDK_KEY_Down:

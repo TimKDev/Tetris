@@ -1,9 +1,10 @@
+#include <gtk/gtk.h>
 #include "game-input.h"
 #include "game-context.h"
 #include "game-logic.h"
 #include "render-logic.h"
 #include "game-loop.h"
-#include <gtk/gtk.h>
+#include "game-ui.h"
 
 #define BORDER_WIDTH 10
 #define COLS_NEXT_PIECE 5
@@ -16,11 +17,11 @@ static GtkWidget *create_game_page_widget();
 static GtkWidget *create_game_area_widget();
 static GtkWidget *create_side_panel_with_buttons(GameContext *game_context);
 
-GtkWidget *create_game_page(GtkWidget *window, void (*quitCallback)(GtkWidget *widget))
+GtkWidget *create_game_page(GtkWidget *window, char *playerName, void (*quitCallback)(GtkWidget *widget))
 {
     GtkWidget *game_page = create_game_page_widget();
     GtkWidget *game_area = create_game_area_widget();
-    GameContext *game_context = create_game_context(game_page, game_area, quitCallback);
+    GameContext *game_context = create_game_context(game_page, game_area, playerName, quitCallback);
     GtkWidget *side_panel = create_side_panel_with_buttons(game_context);
 
     GtkEventController *key_controller = gtk_event_controller_key_new();
@@ -119,10 +120,15 @@ static GtkWidget *create_side_panel_with_buttons(GameContext *game_context)
     GtkWidget *side_panel = gtk_box_new(GTK_ORIENTATION_VERTICAL, 10);
     gtk_widget_set_margin_start(side_panel, 20);
 
-    // Add score display
-    GtkWidget *score_label = gtk_label_new("Score: 0");
-    gtk_widget_add_css_class(score_label, "score-label");
-    gtk_widget_set_halign(score_label, GTK_ALIGN_START);
+    // Create and store score label in context
+    game_context->score_label = gtk_label_new("Score: 0");
+    gtk_widget_add_css_class(game_context->score_label, "score-label");
+    gtk_widget_set_halign(game_context->score_label, GTK_ALIGN_START);
+
+    char *playerNameLabel = g_strdup_printf("Player Name: %s", game_context->game_data->playerName);
+    GtkWidget *playerName = gtk_label_new(playerNameLabel);
+    gtk_widget_add_css_class(playerName, "score-label");
+    gtk_widget_set_halign(playerName, GTK_ALIGN_START);
 
     // Add next piece preview
     GtkWidget *next_piece_label = gtk_label_new("Next Piece:");
@@ -139,7 +145,8 @@ static GtkWidget *create_side_panel_with_buttons(GameContext *game_context)
     game_context->next_piece_area = next_piece_area;
 
     // Add elements to side panel
-    gtk_box_append(GTK_BOX(side_panel), score_label);
+    gtk_box_append(GTK_BOX(side_panel), game_context->score_label);
+    gtk_box_append(GTK_BOX(side_panel), playerName);
     gtk_box_append(GTK_BOX(side_panel), next_piece_label);
     gtk_box_append(GTK_BOX(side_panel), next_piece_area);
 
@@ -167,4 +174,14 @@ static GtkWidget *create_side_panel_with_buttons(GameContext *game_context)
     gtk_box_append(GTK_BOX(side_panel), quit_button);
 
     return side_panel;
+}
+
+void update_score_display(GameContext *context)
+{
+    if (!context || !context->score_label)
+        return;
+
+    char *score_text = g_strdup_printf("Score: %d", context->game_data->score);
+    gtk_label_set_text(GTK_LABEL(context->score_label), score_text);
+    g_free(score_text);
 }

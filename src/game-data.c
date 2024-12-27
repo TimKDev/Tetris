@@ -7,7 +7,7 @@
 void print_game_data(GameData *game);
 static void print_piece(Piece *piece);
 
-GameData *create_game_data(GameConfig *config)
+GameData *create_game_data(GameConfig *config, char *playerName)
 {
     srand(time(NULL));
     GameData *gameData = (GameData *)calloc(1, sizeof(GameData));
@@ -15,6 +15,7 @@ GameData *create_game_data(GameConfig *config)
     gameData->activePiece = create_random_piece(config);
     gameData->nextPiece = create_random_piece(config);
     gameData->gameOver = false;
+    gameData->playerName = playerName;
 
     return gameData;
 }

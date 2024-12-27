@@ -3,7 +3,7 @@
 #include "game-config.h"
 #include "game-ui.h"
 
-GameContext *create_game_context(GtkWidget *gamePage, GtkWidget *gameArea, void (*quitCallback)(GtkWidget *widget))
+GameContext *create_game_context(GtkWidget *gamePage, GtkWidget *gameArea, char *playerName, void (*quitCallback)(GtkWidget *widget))
 {
     GameContext *game_context = (GameContext *)malloc(sizeof(GameContext));
 
@@ -17,7 +17,7 @@ GameContext *create_game_context(GtkWidget *gamePage, GtkWidget *gameArea, void 
 
     // Initialize game state
     game_context->config = load_config_from_file("config/game.json");
-    game_context->game_data = create_game_data(game_context->config);
+    game_context->game_data = create_game_data(game_context->config, playerName);
     game_context->render_state = create_render_state();
     game_context->quit_callback = quitCallback;
 
@@ -32,6 +32,7 @@ void restart_game(GameContext *context)
     }
 
     GtkWidget *gameArea = context->game_area;
+    char *playerName = context->game_data->playerName;
 
     if (context->render_state)
     {
@@ -52,7 +53,7 @@ void restart_game(GameContext *context)
     }
 
     context->config = load_config_from_file("config/game.json");
-    context->game_data = create_game_data(context->config);
+    context->game_data = create_game_data(context->config, playerName);
     context->render_state = create_render_state();
     context->is_paused = false;
 

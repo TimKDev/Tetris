@@ -27,10 +27,11 @@ typedef struct
     Piece *activePiece;
     Piece *nextPiece;
     int score;
+    char *playerName;
     bool gameOver;
 } GameData;
 
-GameData *create_game_data(GameConfig *config);
+GameData *create_game_data(GameConfig *config, char *playerName);
 
 void print_game_data(GameData *game);
 

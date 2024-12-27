@@ -21,6 +21,7 @@ typedef struct
     GtkWidget *game_page;
     GtkWidget *window;
     GtkWidget *next_piece_area;
+    GtkWidget *score_label;
     GtkEventController *key_controller;
 
     // Game state

@@ -4,9 +4,8 @@
 #include <gtk/gtk.h>
 #include "render-logic.h"
 
-GtkWidget *create_game_page(GtkWidget *window, void (*quitCallback)(GtkWidget *widget));
-void show_game_over_dialog(GameContext *context);
-void update_score_display(GameContext *context, int score);
+GtkWidget *create_game_page(GtkWidget *window, char *playerName, void (*quitCallback)(GtkWidget *widget));
+void update_score_display(GameContext *context);
 void destroy_game_page_ui_elements(GameContext *gameContext);
 
 #endif

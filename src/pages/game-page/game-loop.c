@@ -2,6 +2,7 @@
 #include "game-context.h"
 #include "game-logic.h"
 #include "render-logic.h"
+#include "game-ui.h"
 #include "game-over-dialog.h"
 
 gboolean update_game(GameContext *gameContext)
@@ -10,6 +11,8 @@ gboolean update_game(GameContext *gameContext)
     {
         nextMove(gameContext->game_data, gameContext->config);
         render_game_data(gameContext);
+        update_score_display(gameContext);
+
         if (gameContext->game_data->gameOver)
         {
             gameContext->is_paused = true;

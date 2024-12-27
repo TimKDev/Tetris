@@ -10,6 +10,9 @@
 #define GAME_HEIGHT (GAME_ROWS * BLOCK_SIZE)
 #define BLOCK_SIZE 25
 
+#define X_OFFSET 4
+#define Y_OFFSET 0
+
 typedef struct
 {
     GridValue value;

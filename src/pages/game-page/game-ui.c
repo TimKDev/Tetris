@@ -6,6 +6,8 @@
 #include <gtk/gtk.h>
 
 #define BORDER_WIDTH 10
+#define COLS_NEXT_PIECE 5
+#define ROWS_NEXT_PIECE 5
 
 static void on_pause_button_clicked(GtkButton *button, gpointer user_data);
 static void on_restart_button_clicked(GtkButton *button, gpointer user_data);
@@ -125,9 +127,16 @@ static GtkWidget *create_side_panel_with_buttons(GameContext *game_context)
     // Add next piece preview
     GtkWidget *next_piece_label = gtk_label_new("Next Piece:");
     gtk_widget_set_halign(next_piece_label, GTK_ALIGN_START);
-    GtkWidget *next_piece_area = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
-    gtk_widget_set_size_request(next_piece_area, 100, 100);
-    gtk_widget_add_css_class(next_piece_area, "next-piece");
+    GtkWidget *next_piece_area = gtk_fixed_new();
+    gtk_widget_set_size_request(next_piece_area, ROWS_NEXT_PIECE * BLOCK_SIZE, COLS_NEXT_PIECE * BLOCK_SIZE);
+    gtk_widget_add_css_class(next_piece_area, "game-area");
+
+    gtk_widget_set_halign(next_piece_area, GTK_ALIGN_START);
+    gtk_widget_set_valign(next_piece_area, GTK_ALIGN_START);
+    gtk_widget_set_hexpand(next_piece_area, FALSE);
+    gtk_widget_set_vexpand(next_piece_area, FALSE);
+
+    game_context->next_piece_area = next_piece_area;
 
     // Add elements to side panel
     gtk_box_append(GTK_BOX(side_panel), score_label);

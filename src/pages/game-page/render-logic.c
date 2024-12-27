@@ -8,6 +8,7 @@ char *getColorFromGridValue(GridValue value);
 GtkWidget *add_block_to_game(GtkWidget *gameArea, int x, int y, GridValue gridValue);
 void render_active_piece(GameContext *context);
 void render_fixed_blocks(GameContext *context);
+static void render_next_piece(GameContext *context);
 
 RenderState *create_render_state(void)
 {
@@ -39,6 +40,16 @@ void destroy_render_state(RenderState *state, GtkWidget *gameArea)
         }
     }
 
+    for (int i = 0; i < state->numberNextPieceBlockWidgets; i++)
+    {
+        if (state->nextPieceBlockWidgets[i])
+        {
+            GtkWidget *widget = state->nextPieceBlockWidgets[i];
+            gtk_fixed_remove(GTK_FIXED(gameArea), widget);
+            widget = NULL;
+        }
+    }
+
     free(state);
     state = NULL;
 }
@@ -50,6 +61,7 @@ void render_game_data(GameContext *context)
         return;
     }
     render_active_piece(context);
+    render_next_piece(context);
     if (context->game_data->numberFixedBlocks != context->render_state->numberFixedBlocks)
     {
         render_fixed_blocks(context);
@@ -96,6 +108,51 @@ void render_active_piece(GameContext *context)
         Piece *activePiece = context->game_data->activePiece;
         GtkWidget *block = add_block_to_game(context->game_area, activePiece->blocks[i].x, activePiece->blocks[i].y, activePiece->value);
         context->render_state->activeBlockWidgets[i] = block;
+    }
+}
+
+static void render_next_piece(GameContext *context)
+{
+    if (!context || !context->render_state || !context->game_area)
+    {
+        g_error("Invalid context in render_next_piece");
+        return;
+    }
+
+    for (int i = 0; i < context->render_state->numberNextPieceBlockWidgets; i++)
+    {
+        if (context->render_state->nextPieceBlockWidgets[i])
+        {
+            GtkWidget *widget = context->render_state->nextPieceBlockWidgets[i];
+            gtk_fixed_remove(GTK_FIXED(context->next_piece_area), widget);
+            widget = NULL;
+        }
+    }
+
+    size_t new_number_next_piece_blocks = context->game_data->nextPiece->numberOfBlocks;
+    size_t old_number_next_piece_blocks = context->render_state->numberNextPieceBlockWidgets;
+
+    if (old_number_next_piece_blocks < new_number_next_piece_blocks)
+    {
+        GtkWidget **new_widgets = (GtkWidget **)realloc(context->render_state->nextPieceBlockWidgets, new_number_next_piece_blocks * sizeof(GtkWidget *));
+
+        if (new_widgets == NULL)
+        {
+            g_error("Failed to allocate memory for widgets");
+            return;
+        }
+
+        context->render_state->nextPieceBlockWidgets = new_widgets;
+        context->render_state->numberNextPieceBlockWidgets = new_number_next_piece_blocks;
+    }
+
+    for (int i = 0; i < new_number_next_piece_blocks; i++)
+    {
+        Piece *nextPiece = context->game_data->nextPiece;
+        int xPosition = nextPiece->blocks[i].x - X_OFFSET * BLOCK_SIZE;
+        int yPosition = nextPiece->blocks[i].y - Y_OFFSET * BLOCK_SIZE;
+        GtkWidget *block = add_block_to_game(context->next_piece_area, xPosition, yPosition, nextPiece->value);
+        context->render_state->nextPieceBlockWidgets[i] = block;
     }
 }
 
@@ -161,13 +218,13 @@ void render_fixed_blocks(GameContext *context)
     }
 }
 
-GtkWidget *add_block_to_game(GtkWidget *gameArea, int x, int y, GridValue gridValue)
+GtkWidget *add_block_to_game(GtkWidget *parentOfBlock, int x, int y, GridValue gridValue)
 {
     GtkWidget *block = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
     gtk_widget_set_size_request(block, BLOCK_SIZE, BLOCK_SIZE);
     gtk_widget_add_css_class(block, "block");
     gtk_widget_add_css_class(block, getColorFromGridValue(gridValue));
-    gtk_fixed_put(GTK_FIXED(gameArea), block, x, y);
+    gtk_fixed_put(GTK_FIXED(parentOfBlock), block, x, y);
 
     return block;
 }

@@ -73,12 +73,10 @@ Piece *create_random_piece(GameConfig *config)
     result->numberOfBlocks = numberOfBlocksInRandomPiece;
     result->blocks = blocks;
 
-    int xOffset = 4;
-    int yOffset = 0;
     for (int i = 0; i < numberOfBlocksInRandomPiece; i++)
     {
-        blocks[i].x = (randomPieceConfig[i].x + xOffset) * BLOCK_SIZE;
-        blocks[i].y = (randomPieceConfig[i].y + yOffset) * BLOCK_SIZE;
+        blocks[i].x = (randomPieceConfig[i].x + X_OFFSET) * BLOCK_SIZE;
+        blocks[i].y = (randomPieceConfig[i].y + Y_OFFSET) * BLOCK_SIZE;
     }
 
     return result;

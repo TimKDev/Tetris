@@ -10,6 +10,8 @@ typedef struct
     int numberActiveBlocks;
     GtkWidget **fixedBlockWidgets;
     int numberFixedBlocks;
+    GtkWidget **nextPieceBlockWidgets;
+    int numberNextPieceBlockWidgets;
 } RenderState;
 
 typedef struct
@@ -18,6 +20,7 @@ typedef struct
     GtkWidget *game_area;
     GtkWidget *game_page;
     GtkWidget *window;
+    GtkWidget *next_piece_area;
     GtkEventController *key_controller;
 
     // Game state

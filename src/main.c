@@ -1,7 +1,6 @@
 #include <gtk/gtk.h>
-#include "../header/startingPage.h"
-#include "../header/gamePage.h"
-#include "../header/gameConfig.h"
+#include "starting-page.h"
+#include "game-ui.h"
 
 static GtkWidget *window;
 static GtkWidget *startingPage;

@@ -1,4 +1,4 @@
-#include "../header/gameLogic.h"
+#include "../header/game-logic.h"
 
 void move_piece_down(GameData *gameData);
 

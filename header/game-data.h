@@ -1,8 +1,8 @@
-#include "gameConfig.h"
+#include "game-config.h"
 #include "stdbool.h"
 
-#ifndef GAME_LOGIC_H
-#define GAME_LOGIC_H
+#ifndef GAME_DATA_H
+#define GAME_DATA_H
 
 #define GAME_COLUMNS 8
 #define GAME_ROWS 14
@@ -27,18 +27,14 @@ typedef struct
     bool gameOver;
 } GameData;
 
-GameData *initialize(GameConfig *config);
+GameData *create_game_data(GameConfig *config);
 
 void print_game_data(GameData *game);
 
 void destory_game_data(GameData *gameData);
 
-void nextMove(GameData *gameData, GameConfig *config);
+void destory_piece(Piece *piece);
 
-void move_piece_left(GameData *gameData);
-
-void move_piece_right(GameData *gameData);
-
-void move_piece_down(GameData *gameData);
+Piece *create_random_piece(GameConfig *config);
 
 #endif

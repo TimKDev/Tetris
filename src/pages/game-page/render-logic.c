@@ -1,7 +1,6 @@
 #include <gtk/gtk.h>
-#include "../header/renderLogic.h"
-#include "renderLogic.h"
-#include "gameLogic.h"
+#include "render-logic.h"
+#include "game-logic.h"
 
 #define BORDER_BLOCK 2
 

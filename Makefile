@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = `pkg-config --cflags gtk4` -I./$(HEADERDIR) -g -DDEBUG -O0
+CFLAGS = `pkg-config --cflags gtk4` -I$(HEADERDIR) -g -DDEBUG -O0
 LIBS = `pkg-config --libs gtk4` -ljson-c
 
 TARGET = tetris
@@ -7,14 +7,12 @@ SRCDIR = src
 HEADERDIR = header
 OBJDIR = obj
 
-# Find all .c files in src directory
-SRCS = $(wildcard $(SRCDIR)/*.c)
+# Recursively find all .c files in src directory and subdirectories
+SRCS = $(shell find $(SRCDIR) -type f -name '*.c')
 # Find all .h files in header directory
 HEADERS = $(wildcard $(HEADERDIR)/*.h)
-# Create object files list from source files
+# Create object files list from source files, maintaining directory structure
 OBJS = $(patsubst $(SRCDIR)/%.c,$(OBJDIR)/%.o,$(SRCS))
-
-INCLUDES = -I./$(HEADERDIR)
 
 #When using VSC to debug this the following lines needed to be removed. 
 #run: $(TARGET)
@@ -26,14 +24,15 @@ $(TARGET): $(OBJS)
 
 # Compile source files to object files
 $(OBJDIR)/%.o: $(SRCDIR)/%.c $(HEADERS) | $(OBJDIR)
-	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
+	@mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) -c $< -o $@
 
 # Create obj directory if it doesn't exist
 $(OBJDIR):
 	mkdir -p $(OBJDIR)
 
 clean:
-	rm -f $(TARGET) $(OBJS)
+	rm -rf $(TARGET) $(OBJDIR)
 
 # Defines make command names to avoid conflicts with file names. If no command is given, 
 # make will run the first target (not necessarily the first command).

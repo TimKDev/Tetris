@@ -1,7 +1,7 @@
-#include "gameConfig.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include "game-config.h"
 
 static Point *parse_piece_points(json_object *piece_array, int *size)
 {

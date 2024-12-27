@@ -2,7 +2,7 @@
 #define RENDER_LOGIC_H
 
 #include <gtk/gtk.h>
-#include "gameLogic.h"
+#include "game-logic.h"
 
 typedef struct
 {
@@ -14,13 +14,24 @@ typedef struct
 
 typedef struct
 {
-    GtkWidget *game_page;
+    // Widgets
     GtkWidget *game_area;
+    GtkWidget *game_page;
+    GtkWidget *window;
+    GtkEventController *key_controller;
+
+    // Game state
     GameData *game_data;
     RenderState *render_state;
     GameConfig *config;
     bool is_paused;
-    void (*quit_callback)(GtkWidget *gamePage);
+
+    // Signal handler IDs
+    gulong key_controller_handler_id;
+    guint update_game_handler_id;
+
+    // Callback
+    void (*quit_callback)(GtkWidget *widget);
 } GameContext;
 
 RenderState *create_render_state(void);

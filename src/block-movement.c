@@ -1,5 +1,5 @@
-#include "gameLogic.h"
-#include "blockMovement.h"
+#include "game-logic.h"
+#include "block-movement.h"
 
 #define FALL_VELOCITY 1
 

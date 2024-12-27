@@ -1,5 +1,5 @@
-#include "startingPage.h"
 #include <string.h>
+#include "starting-page.h"
 
 struct ScoreEntry
 {
@@ -7,7 +7,7 @@ struct ScoreEntry
     int score;
 };
 
-GtkWidget *create_starting_page(void(*startCallback)(GtkWidget *widget, gpointer data), void(*helpCallback)(GtkWidget *widget, gpointer data))
+GtkWidget *create_starting_page(void (*startCallback)(GtkWidget *widget, gpointer data), void (*helpCallback)(GtkWidget *widget, gpointer data))
 {
     GtkWidget *box;
     GtkWidget *title_label;

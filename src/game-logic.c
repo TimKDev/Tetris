@@ -55,7 +55,20 @@ void nextMove(GameData *gameData, GameConfig *config)
 
 static int calculate_score(GameData *gameData, GameConfig *config, int lineNumber)
 {
-    return 10;
+    int score = 0;
+    for (size_t i = 0; i < GAME_COLUMNS; i++)
+    {
+        for (size_t j = 0; j < config->colorsCount; j++)
+        {
+            if (config->colors[j].key == gameData->fixedBlocks[lineNumber][i])
+            {
+                score += config->colors[j].scoreValue;
+                continue;
+            }
+        }
+    }
+
+    return score;
 }
 
 static void remove_line(GameData *gameData, int lineNumber)

@@ -3,10 +3,11 @@
 
 #define FALL_VELOCITY 1
 
-void y_move_piece_by_offset(GameData *gameData, int yOffset);
-void x_move_piece_by_offset(GameData *gameData, int xOffset);
-int is_x_position_valid(GameData *gameData, int xOffset);
-int get_allowed_y_offset(GameData *gameData, int yOffset);
+static void y_move_piece_by_offset(GameData *gameData, int yOffset);
+static void x_move_piece_by_offset(GameData *gameData, int xOffset);
+static int is_x_position_valid(GameData *gameData, int xOffset);
+static int get_allowed_y_offset(GameData *gameData, int yOffset);
+static bool is_point_in_area(int x, int y, int row, int col);
 
 void move_piece_down(GameData *gameData)
 {
@@ -38,7 +39,12 @@ void move_piece_left(GameData *gameData)
     x_move_piece_by_offset(gameData, -BLOCK_SIZE);
 }
 
-void y_move_piece_by_offset(GameData *gameData, int yOffset)
+bool is_block_in_area(int x, int y, int row, int col)
+{
+    return is_point_in_area(x, y, row, col) || is_point_in_area(x + BLOCK_SIZE - 1, y, row, col) || is_point_in_area(x, y + BLOCK_SIZE - 1, row, col) || is_point_in_area(x + BLOCK_SIZE - 1, y + BLOCK_SIZE - 1, row, col);
+}
+
+static void y_move_piece_by_offset(GameData *gameData, int yOffset)
 {
     for (int i = 0; i < gameData->activePiece->numberOfBlocks; i++)
     {
@@ -46,7 +52,7 @@ void y_move_piece_by_offset(GameData *gameData, int yOffset)
     }
 }
 
-void x_move_piece_by_offset(GameData *gameData, int xOffset)
+static void x_move_piece_by_offset(GameData *gameData, int xOffset)
 {
     for (int i = 0; i < gameData->activePiece->numberOfBlocks; i++)
     {
@@ -54,7 +60,7 @@ void x_move_piece_by_offset(GameData *gameData, int xOffset)
     }
 }
 
-int is_x_position_valid(GameData *gameData, int xOffset)
+static int is_x_position_valid(GameData *gameData, int xOffset)
 {
     for (size_t i = 0; i < gameData->activePiece->numberOfBlocks; i++)
     {
@@ -72,7 +78,7 @@ int is_x_position_valid(GameData *gameData, int xOffset)
                     continue;
                 }
 
-                if (row * BLOCK_SIZE <= p.y && p.y <= row * (BLOCK_SIZE + 1) && p.x + BLOCK_SIZE >= col * BLOCK_SIZE)
+                if (is_block_in_area(p.x + xOffset, p.y, row, col))
                 {
                     return 1;
                 }
@@ -83,7 +89,15 @@ int is_x_position_valid(GameData *gameData, int xOffset)
     return 0;
 }
 
-int get_allowed_y_offset(GameData *gameData, int yOffset)
+static bool is_point_in_area(int x, int y, int row, int col)
+{
+    bool x_in_area = col * BLOCK_SIZE <= x && x < (col + 1) * BLOCK_SIZE;
+    bool y_in_area = row * BLOCK_SIZE <= y && y < (row + 1) * BLOCK_SIZE;
+
+    return x_in_area && y_in_area;
+}
+
+static int get_allowed_y_offset(GameData *gameData, int yOffset)
 {
     for (size_t i = 0; i < gameData->activePiece->numberOfBlocks; i++)
     {

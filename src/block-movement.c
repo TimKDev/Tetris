@@ -5,7 +5,7 @@
 
 static void y_move_piece_by_offset(GameData *gameData, int yOffset);
 static void x_move_piece_by_offset(GameData *gameData, int xOffset);
-static int is_x_position_valid(GameData *gameData, int xOffset);
+static bool is_x_position_valid(GameData *gameData, int xOffset);
 static int get_allowed_y_offset(GameData *gameData, int yOffset);
 static bool is_point_in_area(int x, int y, int row, int col);
 
@@ -23,20 +23,18 @@ void let_piece_fall_down(GameData *gameData)
 
 void move_piece_right(GameData *gameData)
 {
-    if (is_x_position_valid(gameData, BLOCK_SIZE) != 0)
+    if (is_x_position_valid(gameData, BLOCK_SIZE))
     {
-        return;
+        x_move_piece_by_offset(gameData, BLOCK_SIZE);
     }
-    x_move_piece_by_offset(gameData, BLOCK_SIZE);
 }
 
 void move_piece_left(GameData *gameData)
 {
-    if (is_x_position_valid(gameData, -BLOCK_SIZE) != 0)
+    if (is_x_position_valid(gameData, -BLOCK_SIZE))
     {
-        return;
+        x_move_piece_by_offset(gameData, -BLOCK_SIZE);
     }
-    x_move_piece_by_offset(gameData, -BLOCK_SIZE);
 }
 
 bool is_block_in_area(int x, int y, int row, int col)
@@ -60,14 +58,14 @@ static void x_move_piece_by_offset(GameData *gameData, int xOffset)
     }
 }
 
-static int is_x_position_valid(GameData *gameData, int xOffset)
+static bool is_x_position_valid(GameData *gameData, int xOffset)
 {
     for (size_t i = 0; i < gameData->activePiece->numberOfBlocks; i++)
     {
         Point p = gameData->activePiece->blocks[i];
         if (p.x + xOffset < 0 || GAME_WIDTH < p.x + BLOCK_SIZE + xOffset)
         {
-            return 1;
+            return false;
         }
         for (size_t row = 0; row < GAME_ROWS; row++)
         {
@@ -80,13 +78,13 @@ static int is_x_position_valid(GameData *gameData, int xOffset)
 
                 if (is_block_in_area(p.x + xOffset, p.y, row, col))
                 {
-                    return 1;
+                    return false;
                 }
             }
         }
     }
 
-    return 0;
+    return true;
 }
 
 static bool is_point_in_area(int x, int y, int row, int col)

@@ -36,7 +36,7 @@ void restart_game(GameContext *context)
 
     if (context->render_state)
     {
-        destroy_render_state(context->render_state, gameArea);
+        destroy_render_state(context->render_state, gameArea, context->next_piece_area);
         context->render_state = NULL;
     }
 
@@ -71,7 +71,7 @@ void quit_game(GameContext *gameContext)
 
     if (gameContext->render_state)
     {
-        destroy_render_state(gameContext->render_state, gameContext->game_area);
+        destroy_render_state(gameContext->render_state, gameContext->game_area, gameContext->next_piece_area);
     }
     if (gameContext->game_data)
     {

@@ -39,7 +39,7 @@ typedef struct
 } GameContext;
 
 RenderState *create_render_state(void);
-void destroy_render_state(RenderState *state, GtkWidget *gameArea);
+void destroy_render_state(RenderState *state, GtkWidget *gameArea, GtkWidget *nextPieceArea);
 void render_game_data(GameContext *context);
 
 #endif

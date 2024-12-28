@@ -15,7 +15,7 @@ RenderState *create_render_state(void)
     return (RenderState *)calloc(1, sizeof(RenderState));
 }
 
-void destroy_render_state(RenderState *state, GtkWidget *gameArea)
+void destroy_render_state(RenderState *state, GtkWidget *gameArea, GtkWidget *nextPieceArea)
 {
     if (state == NULL)
     {
@@ -45,7 +45,7 @@ void destroy_render_state(RenderState *state, GtkWidget *gameArea)
         if (state->nextPieceBlockWidgets[i])
         {
             GtkWidget *widget = state->nextPieceBlockWidgets[i];
-            gtk_fixed_remove(GTK_FIXED(gameArea), widget);
+            gtk_fixed_remove(GTK_FIXED(nextPieceArea), widget);
             widget = NULL;
         }
     }

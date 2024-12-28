@@ -47,7 +47,7 @@ static bool is_clockwise_rotation_valid(GameData *gameData, BlocksArray *blocksT
 
                 if (is_block_in_area(block.x, block.y, row, col))
                 {
-                    return 1;
+                    return false;
                 }
             }
         }

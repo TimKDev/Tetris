@@ -1,11 +1,83 @@
 #include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include "starting-page.h"
+
+#define MAX_SCORES 5
 
 struct ScoreEntry
 {
     char name[50];
     int score;
 };
+
+// Comparison function for qsort
+static int compare_scores(const void *a, const void *b)
+{
+    const struct ScoreEntry *score_a = (const struct ScoreEntry *)a;
+    const struct ScoreEntry *score_b = (const struct ScoreEntry *)b;
+    // Sort in descending order (highest score first)
+    return score_b->score - score_a->score;
+}
+
+static int read_high_scores(struct ScoreEntry scores[])
+{
+    FILE *file = fopen("scores.txt", "r");
+    if (file == NULL)
+    {
+        return 0;
+    }
+
+    int count = 0;
+    int lowest_score = -1;
+    char line[256];
+
+    // Read scores one by one
+    while (fgets(line, sizeof(line), file))
+    {
+        char *colon = strchr(line, ':');
+        if (colon == NULL)
+            continue;
+
+        *colon = '\0';
+        int current_score = atoi(colon + 1);
+
+        // If we have less than MAX_SCORES, add it
+        if (count < MAX_SCORES)
+        {
+            strncpy(scores[count].name, line, sizeof(scores[count].name) - 1);
+            scores[count].score = current_score;
+            count++;
+
+            // Update lowest_score if needed
+            if (lowest_score == -1 || current_score < lowest_score)
+            {
+                lowest_score = current_score;
+            }
+
+            // Sort if we have MAX_SCORES entries
+            if (count == MAX_SCORES)
+            {
+                lowest_score = scores[MAX_SCORES - 1].score;
+            }
+            qsort(scores, count, sizeof(struct ScoreEntry), compare_scores);
+        }
+        // If we have MAX_SCORES, only add if better than lowest
+        else if (current_score > lowest_score)
+        {
+            // Replace the lowest score
+            strncpy(scores[MAX_SCORES - 1].name, line, sizeof(scores[MAX_SCORES - 1].name) - 1);
+            scores[MAX_SCORES - 1].score = current_score;
+
+            // Re-sort the array
+            qsort(scores, MAX_SCORES, sizeof(struct ScoreEntry), compare_scores);
+            lowest_score = scores[MAX_SCORES - 1].score;
+        }
+    }
+
+    fclose(file);
+    return count;
+}
 
 GtkWidget *create_starting_page(void (*startCallback)(GtkWidget *widget, gpointer data), void (*helpCallback)(GtkWidget *widget, gpointer data))
 {
@@ -44,12 +116,9 @@ GtkWidget *create_starting_page(void (*startCallback)(GtkWidget *widget, gpointe
     gtk_box_append(GTK_BOX(box), title_label);
     gtk_box_append(GTK_BOX(box), button_box);
 
-    // Create high scores section
-    struct ScoreEntry scores[2];
-    strncpy(scores[0].name, "John", sizeof(scores[0].name) - 1);
-    scores[0].score = 121523;
-    strncpy(scores[1].name, "Coding Challenges", sizeof(scores[1].name) - 1);
-    scores[1].score = 110323;
+    // Replace the mock scores section with:
+    struct ScoreEntry scores[MAX_SCORES];
+    int num_scores = read_high_scores(scores);
 
     scores_label = gtk_label_new("High Scores:");
     gtk_box_append(GTK_BOX(box), scores_label);
@@ -59,28 +128,21 @@ GtkWidget *create_starting_page(void (*startCallback)(GtkWidget *widget, gpointe
     gtk_grid_set_row_spacing(GTK_GRID(scoreGrid), 10);
     gtk_grid_set_column_spacing(GTK_GRID(scoreGrid), 100);
 
-    // Center the grid horizontally
     gtk_widget_set_halign(scoreGrid, GTK_ALIGN_CENTER);
-
-    // Optional: Add some margin for better spacing
     gtk_widget_set_margin_top(scoreGrid, 10);
     gtk_widget_set_margin_bottom(scoreGrid, 10);
 
     // Add scores to grid
-    int NUM_SCORES = (sizeof(scores) / sizeof(scores[0]));
-
-    for (int i = 0; i < NUM_SCORES; i++)
+    for (int i = 0; i < num_scores; i++)
     {
         GtkWidget *scoreName = gtk_label_new(scores[i].name);
         char score_str[20];
         snprintf(score_str, sizeof(score_str), "%d", scores[i].score);
         GtkWidget *scoreValue = gtk_label_new(score_str);
 
-        // Left-align name, right-align score
         gtk_widget_set_halign(scoreName, GTK_ALIGN_START);
         gtk_widget_set_halign(scoreValue, GTK_ALIGN_END);
 
-        // Attach to grid: widget, column, row, width, height
         gtk_grid_attach(GTK_GRID(scoreGrid), scoreName, 0, i, 1, 1);
         gtk_grid_attach(GTK_GRID(scoreGrid), scoreValue, 1, i, 1, 1);
     }

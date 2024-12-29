@@ -1,7 +1,7 @@
 #include "game-context.h"
 #include "game-logic.h"
 #include "game-config.h"
-#include "game-ui.h"
+#include "game-page.h"
 
 GameContext *create_game_context(GtkWidget *gamePage, GtkWidget *gameArea, char *playerName, void (*quitCallback)(GtkWidget *widget))
 {

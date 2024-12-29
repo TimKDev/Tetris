@@ -2,7 +2,7 @@
 #include "game-context.h"
 #include "game-logic.h"
 #include "render-logic.h"
-#include "game-ui.h"
+#include "game-page.h"
 #include "game-over-dialog.h"
 #include <stdio.h>
 

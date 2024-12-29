@@ -1,6 +1,6 @@
 #include <gtk/gtk.h>
 #include "starting-page.h"
-#include "game-ui.h"
+#include "game-page.h"
 #include "player-name-dialog.h"
 
 static GtkWidget *window;

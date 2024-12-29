@@ -11,63 +11,8 @@ struct ScoreEntry
     int score;
 };
 
-// Comparison function for qsort
-static int compare_scores(const void *a, const void *b)
-{
-    const struct ScoreEntry *score_a = (const struct ScoreEntry *)a;
-    const struct ScoreEntry *score_b = (const struct ScoreEntry *)b;
-    // Sort in descending order (highest score first)
-    return score_b->score - score_a->score;
-}
-
-static int read_high_scores(struct ScoreEntry scores[])
-{
-    FILE *file = fopen("scores.txt", "r");
-    if (file == NULL)
-    {
-        return 0;
-    }
-
-    int count = 0;
-    int lowest_score = -1;
-    char line[256];
-
-    // Read scores one by one
-    while (fgets(line, sizeof(line), file))
-    {
-        char *colon = strchr(line, ':');
-        if (colon == NULL)
-            continue;
-
-        *colon = '\0';
-        int current_score = atoi(colon + 1);
-
-        if (count < MAX_SCORES)
-        {
-            strncpy(scores[count].name, line, sizeof(scores[count].name) - 1);
-            scores[count].score = current_score;
-            count++;
-
-            if (lowest_score == -1 || current_score < lowest_score)
-            {
-                lowest_score = current_score;
-            }
-
-            qsort(scores, count, sizeof(struct ScoreEntry), compare_scores);
-        }
-        // If we have MAX_SCORES, only add if better than lowest
-        else if (current_score > lowest_score)
-        {
-            strncpy(scores[MAX_SCORES - 1].name, line, sizeof(scores[MAX_SCORES - 1].name) - 1);
-            scores[MAX_SCORES - 1].score = current_score;
-            qsort(scores, MAX_SCORES, sizeof(struct ScoreEntry), compare_scores);
-            lowest_score = scores[MAX_SCORES - 1].score;
-        }
-    }
-
-    fclose(file);
-    return count;
-}
+static int compare_scores(const void *a, const void *b);
+static int read_high_scores(struct ScoreEntry scores[]);
 
 GtkWidget *create_starting_page(void (*startCallback)(GtkWidget *widget, gpointer data), void (*helpCallback)(GtkWidget *widget, gpointer data))
 {
@@ -137,8 +82,61 @@ GtkWidget *create_starting_page(void (*startCallback)(GtkWidget *widget, gpointe
         gtk_grid_attach(GTK_GRID(scoreGrid), scoreValue, 1, i, 1, 1);
     }
 
-    // Add the grid to the main box
     gtk_box_append(GTK_BOX(box), scoreGrid);
 
     return box;
+}
+
+static int compare_scores(const void *a, const void *b)
+{
+    const struct ScoreEntry *score_a = (const struct ScoreEntry *)a;
+    const struct ScoreEntry *score_b = (const struct ScoreEntry *)b;
+    return score_b->score - score_a->score;
+}
+
+static int read_high_scores(struct ScoreEntry scores[])
+{
+    FILE *file = fopen("scores.txt", "r");
+    if (file == NULL)
+    {
+        return 0;
+    }
+
+    int count = 0;
+    int lowest_score = -1;
+    char line[256];
+
+    while (fgets(line, sizeof(line), file))
+    {
+        char *colon = strchr(line, ':');
+        if (colon == NULL)
+            continue;
+
+        *colon = '\0';
+        int current_score = atoi(colon + 1);
+
+        if (count < MAX_SCORES)
+        {
+            strncpy(scores[count].name, line, sizeof(scores[count].name) - 1);
+            scores[count].score = current_score;
+            count++;
+
+            if (lowest_score == -1 || current_score < lowest_score)
+            {
+                lowest_score = current_score;
+            }
+
+            qsort(scores, count, sizeof(struct ScoreEntry), compare_scores);
+        }
+        else if (current_score > lowest_score)
+        {
+            strncpy(scores[MAX_SCORES - 1].name, line, sizeof(scores[MAX_SCORES - 1].name) - 1);
+            scores[MAX_SCORES - 1].score = current_score;
+            qsort(scores, MAX_SCORES, sizeof(struct ScoreEntry), compare_scores);
+            lowest_score = scores[MAX_SCORES - 1].score;
+        }
+    }
+
+    fclose(file);
+    return count;
 }

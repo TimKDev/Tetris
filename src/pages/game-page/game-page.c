@@ -4,7 +4,7 @@
 #include "game-logic.h"
 #include "render-logic.h"
 #include "game-loop.h"
-#include "game-ui.h"
+#include "game-page.h"
 
 #define BORDER_WIDTH 10
 #define COLS_NEXT_PIECE 5

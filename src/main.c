@@ -2,6 +2,7 @@
 #include "starting-page.h"
 #include "game-page.h"
 #include "player-name-dialog.h"
+#include "help-page.h"
 
 static GtkWidget *window;
 static GtkWidget *startingPage;
@@ -31,8 +32,7 @@ static void on_name_dialog_response(GtkDialog *dialog, gint response_id, gpointe
         const char *name = gtk_entry_buffer_get_text(name_buffer);
         if (strlen(name) > 0)
         {
-            // Create game page with player name
-            char *player_name = g_strdup(name); // Make a copy of the name
+            char *player_name = g_strdup(name);
             gtk_window_set_child(GTK_WINDOW(window), NULL);
             GtkWidget *gamePage = create_game_page(window, player_name, click_quit_game_button);
             gtk_window_set_child(GTK_WINDOW(window), gamePage);
@@ -57,7 +57,9 @@ static void click_quit_game_button(GtkWidget *gamePage)
 
 static void click_help_button(GtkWidget *widget, gpointer data)
 {
-    g_print("Help\n");
+    gtk_window_set_child(GTK_WINDOW(window), NULL);
+    GtkWidget *helpPage = create_help_page(click_quit_game_button);
+    gtk_window_set_child(GTK_WINDOW(window), helpPage);
 }
 
 static void activate(GtkApplication *app, gpointer user_data)

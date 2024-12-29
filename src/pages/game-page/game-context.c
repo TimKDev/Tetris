@@ -6,6 +6,11 @@
 GameContext *create_game_context(GtkWidget *gamePage, GtkWidget *gameArea, char *playerName, void (*quitCallback)(GtkWidget *widget))
 {
     GameContext *game_context = (GameContext *)malloc(sizeof(GameContext));
+    if (game_context == NULL)
+    {
+        printf("Memory allocation failed.");
+        exit(1);
+    }
 
     // Initialize all fields to NULL/0
     memset(game_context, 0, sizeof(GameContext));

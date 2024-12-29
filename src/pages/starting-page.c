@@ -42,34 +42,24 @@ static int read_high_scores(struct ScoreEntry scores[])
         *colon = '\0';
         int current_score = atoi(colon + 1);
 
-        // If we have less than MAX_SCORES, add it
         if (count < MAX_SCORES)
         {
             strncpy(scores[count].name, line, sizeof(scores[count].name) - 1);
             scores[count].score = current_score;
             count++;
 
-            // Update lowest_score if needed
             if (lowest_score == -1 || current_score < lowest_score)
             {
                 lowest_score = current_score;
             }
 
-            // Sort if we have MAX_SCORES entries
-            if (count == MAX_SCORES)
-            {
-                lowest_score = scores[MAX_SCORES - 1].score;
-            }
             qsort(scores, count, sizeof(struct ScoreEntry), compare_scores);
         }
         // If we have MAX_SCORES, only add if better than lowest
         else if (current_score > lowest_score)
         {
-            // Replace the lowest score
             strncpy(scores[MAX_SCORES - 1].name, line, sizeof(scores[MAX_SCORES - 1].name) - 1);
             scores[MAX_SCORES - 1].score = current_score;
-
-            // Re-sort the array
             qsort(scores, MAX_SCORES, sizeof(struct ScoreEntry), compare_scores);
             lowest_score = scores[MAX_SCORES - 1].score;
         }

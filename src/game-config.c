@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdio.h>
 #include "game-config.h"
+#include "resource-stack.h"
 
 static Point *parse_piece_points(json_object *piece_array, int *size)
 {
@@ -23,13 +24,20 @@ static Point *parse_piece_points(json_object *piece_array, int *size)
     return points;
 }
 
+static void cleanup_json(void *json_object)
+{
+    json_object_put(json_object);
+}
+
 GameConfig *load_config_from_file(const char *filename)
 {
+    INIT_RESOURCE_STACK(_);
     GameConfig *config = (GameConfig *)malloc(sizeof(GameConfig));
     json_object *root_obj, *colors_array, *pieces_array, *velocity_down, *velocity_movement;
 
     // Read JSON file
     root_obj = json_object_from_file(filename);
+    ADD_RESOURCE(_, root_obj, json_object_put);
     if (!root_obj)
     {
         fprintf(stderr, "Error reading config file: %s\n", filename);
@@ -75,9 +83,6 @@ GameConfig *load_config_from_file(const char *filename)
 
     config->velocityDown = json_object_get_int(velocity_down);
     config->velocityMovement = json_object_get_int(velocity_movement);
-
-    // Clean up JSON object
-    json_object_put(root_obj);
 
     return config;
 }

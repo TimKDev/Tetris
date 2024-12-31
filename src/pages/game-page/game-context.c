@@ -31,8 +31,9 @@ GameContext *create_game_context(GtkWidget *gamePage, GtkWidget *gameArea, char 
 
 void restart_game(GameContext *context)
 {
-    if (context == NULL)
+    if (!context)
     {
+        g_error("Restart without context not possible.");
         return;
     }
 
@@ -69,6 +70,7 @@ void quit_game(GameContext *gameContext)
 {
     if (!gameContext)
     {
+        g_error("Quit game without game context not possible.");
         return;
     }
 

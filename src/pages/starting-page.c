@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "starting-page.h"
+#include "resource-stack.h"
 
 #define MAX_SCORES 5
 
@@ -96,7 +97,10 @@ static int compare_scores(const void *a, const void *b)
 
 static int read_high_scores(struct ScoreEntry scores[])
 {
+    INIT_RESOURCE_STACK(_);
     FILE *file = fopen("scores.txt", "r");
+    ADD_RESOURCE(_, file, fclose);
+
     if (file == NULL)
     {
         return 0;
@@ -137,6 +141,5 @@ static int read_high_scores(struct ScoreEntry scores[])
         }
     }
 
-    fclose(file);
     return count;
 }

@@ -5,6 +5,7 @@
 #include "game-page.h"
 #include "game-over-dialog.h"
 #include <stdio.h>
+#include "resource-stack.h"
 
 static void save_score_to_file(const char *player_name, int score);
 
@@ -28,13 +29,17 @@ gboolean update_game(GameContext *gameContext)
 
 static void save_score_to_file(const char *player_name, int score)
 {
+    INIT_RESOURCE_STACK(_);
     FILE *file = fopen("scores.txt", "a");
     if (file == NULL)
     {
         g_warning("Could not open scores file for writing");
         return;
     }
+    ADD_RESOURCE(_, file, fclose);
 
-    fprintf(file, "%s:%d\n", player_name, score);
-    fclose(file);
+    if (fprintf(file, "%s:%d\n", player_name, score) < 0)
+    {
+        g_warning("Failed to write score to file");
+    }
 }

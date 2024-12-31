@@ -15,7 +15,8 @@ typedef enum
     Blue,
     Red,
     Green,
-    Yellow
+    Yellow,
+    Purple
 } GridValue;
 
 typedef struct

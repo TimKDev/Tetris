@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include "game-logic.h"
 #include <glib.h>
+#include "common.h"
 
 void print_game_data(GameData *game);
 static void print_piece(Piece *piece);
@@ -11,6 +12,7 @@ GameData *create_game_data(GameConfig *config, char *playerName)
 {
     srand(time(NULL));
     GameData *gameData = (GameData *)calloc(1, sizeof(GameData));
+    malloc_check(gameData);
 
     gameData->activePiece = create_random_piece(config);
     gameData->nextPiece = create_random_piece(config);
@@ -69,8 +71,11 @@ Piece *create_random_piece(GameConfig *config)
     int numberOfBlocksInRandomPiece = config->pieceSizes[randomPiecePosition];
 
     Piece *result = (Piece *)malloc(sizeof(Piece));
+    malloc_check(result);
+
     result->value = randomColorConfig.key;
     Point *blocks = (Point *)malloc(numberOfBlocksInRandomPiece * sizeof(Point));
+    malloc_check(blocks);
     result->numberOfBlocks = numberOfBlocksInRandomPiece;
     result->blocks = blocks;
 

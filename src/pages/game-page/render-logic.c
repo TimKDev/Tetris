@@ -1,18 +1,20 @@
 #include <gtk/gtk.h>
 #include "render-logic.h"
 #include "game-logic.h"
+#include "common.h"
 
 #define BORDER_BLOCK 2
 
-char *getColorFromGridValue(GridValue value);
-GtkWidget *add_block_to_game(GtkWidget *gameArea, int x, int y, GridValue gridValue);
+char *getColorFromGridValue(GridValue value, GameConfig *config);
+GtkWidget *add_block_to_game(GtkWidget *gameArea, int x, int y, GridValue gridValue, GameConfig *config);
 void render_active_piece(GameContext *context);
 void render_fixed_blocks(GameContext *context);
 static void render_next_piece(GameContext *context);
 
 RenderState *create_render_state(void)
 {
-    return (RenderState *)calloc(1, sizeof(RenderState));
+    RenderState *render_state = (RenderState *)calloc(1, sizeof(RenderState));
+    malloc_check(render_state);
 }
 
 void destroy_render_state(RenderState *state, GtkWidget *gameArea, GtkWidget *nextPieceArea)
@@ -92,12 +94,7 @@ void render_active_piece(GameContext *context)
     if (old_number_active_blocks < new_number_active_blocks)
     {
         GtkWidget **new_widgets = (GtkWidget **)realloc(context->render_state->activeBlockWidgets, new_number_active_blocks * sizeof(GtkWidget *));
-
-        if (new_widgets == NULL)
-        {
-            g_error("Failed to allocate memory for widgets");
-            return;
-        }
+        malloc_check(new_widgets);
 
         context->render_state->activeBlockWidgets = new_widgets;
         context->render_state->numberActiveBlocks = new_number_active_blocks;
@@ -106,7 +103,7 @@ void render_active_piece(GameContext *context)
     for (int i = 0; i < new_number_active_blocks; i++)
     {
         Piece *activePiece = context->game_data->activePiece;
-        GtkWidget *block = add_block_to_game(context->game_area, activePiece->blocks[i].x, activePiece->blocks[i].y, activePiece->value);
+        GtkWidget *block = add_block_to_game(context->game_area, activePiece->blocks[i].x, activePiece->blocks[i].y, activePiece->value, context->config);
         context->render_state->activeBlockWidgets[i] = block;
     }
 }
@@ -135,13 +132,7 @@ static void render_next_piece(GameContext *context)
     if (old_number_next_piece_blocks < new_number_next_piece_blocks)
     {
         GtkWidget **new_widgets = (GtkWidget **)realloc(context->render_state->nextPieceBlockWidgets, new_number_next_piece_blocks * sizeof(GtkWidget *));
-
-        if (new_widgets == NULL)
-        {
-            g_error("Failed to allocate memory for widgets");
-            return;
-        }
-
+        malloc_check(new_widgets);
         context->render_state->nextPieceBlockWidgets = new_widgets;
         context->render_state->numberNextPieceBlockWidgets = new_number_next_piece_blocks;
     }
@@ -151,7 +142,7 @@ static void render_next_piece(GameContext *context)
         Piece *nextPiece = context->game_data->nextPiece;
         int xPosition = nextPiece->blocks[i].x - X_OFFSET * BLOCK_SIZE;
         int yPosition = nextPiece->blocks[i].y - Y_OFFSET * BLOCK_SIZE;
-        GtkWidget *block = add_block_to_game(context->next_piece_area, xPosition, yPosition, nextPiece->value);
+        GtkWidget *block = add_block_to_game(context->next_piece_area, xPosition, yPosition, nextPiece->value, context->config);
         context->render_state->nextPieceBlockWidgets[i] = block;
     }
 }
@@ -176,12 +167,7 @@ void render_fixed_blocks(GameContext *context)
 
     size_t newSize = context->game_data->numberFixedBlocks;
     GtkWidget **new_widgets = (GtkWidget **)realloc(context->render_state->fixedBlockWidgets, newSize * sizeof(GtkWidget *));
-
-    if (new_widgets == NULL)
-    {
-        g_error("Failed to allocate memory for widgets");
-        return;
-    }
+    malloc_check(new_widgets);
 
     if (newSize > context->render_state->numberFixedBlocks)
     {
@@ -206,7 +192,7 @@ void render_fixed_blocks(GameContext *context)
             }
             if (counter < newSize)
             {
-                GtkWidget *block = add_block_to_game(context->game_area, col * BLOCK_SIZE, row * BLOCK_SIZE, fixedValue);
+                GtkWidget *block = add_block_to_game(context->game_area, col * BLOCK_SIZE, row * BLOCK_SIZE, fixedValue, context->config);
                 context->render_state->fixedBlockWidgets[counter] = block;
                 counter++;
             }
@@ -218,32 +204,27 @@ void render_fixed_blocks(GameContext *context)
     }
 }
 
-GtkWidget *add_block_to_game(GtkWidget *parentOfBlock, int x, int y, GridValue gridValue)
+GtkWidget *add_block_to_game(GtkWidget *parentOfBlock, int x, int y, GridValue gridValue, GameConfig *config)
 {
     GtkWidget *block = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
     gtk_widget_set_size_request(block, BLOCK_SIZE, BLOCK_SIZE);
     gtk_widget_add_css_class(block, "block");
-    gtk_widget_add_css_class(block, getColorFromGridValue(gridValue));
+    gtk_widget_add_css_class(block, getColorFromGridValue(gridValue, config));
     gtk_fixed_put(GTK_FIXED(parentOfBlock), block, x, y);
 
     return block;
 }
 
-// Dies ist durch die Config eigentlich überflüssig, da hier auch der CSS Class Name gefunden werden kann.
-char *getColorFromGridValue(GridValue value)
+char *getColorFromGridValue(GridValue value, GameConfig *config)
 {
-    switch (value)
+    for (size_t i = 0; i < config->colorsCount; i++)
     {
-    case Blue:
-        return "blue";
-    case Red:
-        return "red";
-    case Yellow:
-        return "yellow";
-    case Green:
-        return "green";
-    default:
-        printf("Unknown color with value %d", value);
-        return "";
+        if (config->colors[i].key == value)
+        {
+            return config->colors[i].className;
+        }
     }
+
+    g_error("Unknown color with value %d", value);
+    return "blue";
 }

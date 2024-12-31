@@ -1,6 +1,7 @@
 #include "block-rotation.h"
 #include "game-data.h"
 #include "block-movement.h"
+#include "common.h"
 
 typedef struct
 {
@@ -71,6 +72,7 @@ static BlocksArray *compute_new_blocks_after_clockwise_rotation(Piece *piece)
 {
     BlocksArray *blocksArray = (BlocksArray *)malloc(sizeof(BlocksArray));
     Point *blocks = (Point *)malloc(piece->numberOfBlocks * sizeof(Point));
+    malloc_check(blocks);
     blocksArray->blocks = blocks;
     const int x_fix = piece->blocks[0].x;
     const int y_fix = piece->blocks[0].y;

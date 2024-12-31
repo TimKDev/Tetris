@@ -19,6 +19,11 @@
             "key": 4,
             "className": "yellow",
             "scoreValue": 20
+        },
+        {
+            "key": 5,
+            "className": "purple",
+            "scoreValue": 30
         }
     ],
     "pieces": [

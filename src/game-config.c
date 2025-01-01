@@ -5,36 +5,14 @@
 #include "resource-stack.h"
 #include "common.h"
 
-static Point *parse_piece_points(json_object *piece_array, int *size)
-{
-    *size = json_object_array_length(piece_array);
-    Point *points = (Point *)malloc(sizeof(Point) * (*size));
-
-    for (int i = 0; i < *size; i++)
-    {
-        json_object *point_obj = json_object_array_get_idx(piece_array, i);
-        json_object *x_obj, *y_obj;
-
-        json_object_object_get_ex(point_obj, "x", &x_obj);
-        json_object_object_get_ex(point_obj, "y", &y_obj);
-
-        points[i].x = json_object_get_int(x_obj);
-        points[i].y = json_object_get_int(y_obj);
-    }
-
-    return points;
-}
-
-static void cleanup_json(void *json_object)
-{
-    json_object_put(json_object);
-}
+static Point *parse_piece_points(json_object *piece_array, int *size);
+static void cleanup_json(void *json_object);
 
 GameConfig *load_config_from_file(const char *filename)
 {
     INIT_RESOURCE_STACK(_);
     GameConfig *config = (GameConfig *)malloc(sizeof(GameConfig));
-    malloc_check(config);
+
     json_object *root_obj, *colors_array, *pieces_array, *velocity_down, *velocity_movement;
 
     // Read JSON file
@@ -111,4 +89,29 @@ void destroy_game_config(GameConfig *config)
     free(config->pieceSizes);
 
     free(config);
+}
+
+static Point *parse_piece_points(json_object *piece_array, int *size)
+{
+    *size = json_object_array_length(piece_array);
+    Point *points = (Point *)malloc(sizeof(Point) * (*size));
+
+    for (int i = 0; i < *size; i++)
+    {
+        json_object *point_obj = json_object_array_get_idx(piece_array, i);
+        json_object *x_obj, *y_obj;
+
+        json_object_object_get_ex(point_obj, "x", &x_obj);
+        json_object_object_get_ex(point_obj, "y", &y_obj);
+
+        points[i].x = json_object_get_int(x_obj);
+        points[i].y = json_object_get_int(y_obj);
+    }
+
+    return points;
+}
+
+static void cleanup_json(void *json_object)
+{
+    json_object_put(json_object);
 }

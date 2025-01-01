@@ -1,8 +1,7 @@
+#pragma once
+
 #include "game-config.h"
 #include "stdbool.h"
-
-#ifndef GAME_DATA_H
-#define GAME_DATA_H
 
 #define GAME_COLUMNS 10
 #define GAME_ROWS 20
@@ -40,5 +39,3 @@ void destory_game_data(GameData *gameData);
 void destory_piece(Piece *piece);
 
 Piece *create_random_piece(GameConfig *config);
-
-#endif

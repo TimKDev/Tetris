@@ -1,5 +1,4 @@
-#ifndef RENDER_LOGIC_H
-#define RENDER_LOGIC_H
+#pragma once
 
 #include <gtk/gtk.h>
 #include "game-logic.h"
@@ -41,5 +40,3 @@ typedef struct
 RenderState *create_render_state(void);
 void destroy_render_state(RenderState *state, GtkWidget *gameArea, GtkWidget *nextPieceArea);
 void render_game_data(GameContext *context);
-
-#endif

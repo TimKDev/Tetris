@@ -1,8 +1,5 @@
-#ifndef HELP_PAGE_H
-#define HELP_PAGE_H
+#pragma once
 
 #include <gtk/gtk.h>
 
 GtkWidget *create_help_page(void (*quitCallback)(GtkWidget *widget));
-
-#endif

@@ -1,4 +1,6 @@
-#include "../header/game-logic.h"
+#pragma once
+
+#include "game-logic.h"
 
 void move_piece_down(GameData *gameData);
 

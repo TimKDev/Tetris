@@ -1,9 +1,6 @@
-#ifndef GAME_LOOP_H
-#define GAME_LOOP_H
+#pragma once
 
 #include <gtk/gtk.h>
 #include "render-logic.h"
 
 gboolean update_game(GameContext *gameContext);
-
-#endif

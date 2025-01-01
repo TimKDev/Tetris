@@ -1,5 +1,4 @@
-#ifndef GAME_CONFIG_H
-#define GAME_CONFIG_H
+#pragma once
 
 #include <json-c/json.h>
 
@@ -42,5 +41,3 @@ GameConfig *load_config_from_file(const char *filename);
 
 // Function to clean up game configuration
 void destroy_game_config(GameConfig *config);
-
-#endif

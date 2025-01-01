@@ -2,10 +2,11 @@ CC = gcc
 CFLAGS = `pkg-config --cflags gtk4` -I$(HEADERDIR) -g -DDEBUG -O0
 LIBS = `pkg-config --libs gtk4` -ljson-c
 
-TARGET = tetris
+TARGET = bin/tetris
 SRCDIR = src
-HEADERDIR = header
+HEADERDIR = include
 OBJDIR = obj
+BINDIR = bin
 
 # Recursively find all .c files in src directory and subdirectories
 SRCS = $(shell find $(SRCDIR) -type f -name '*.c')
@@ -19,7 +20,7 @@ OBJS = $(patsubst $(SRCDIR)/%.c,$(OBJDIR)/%.o,$(SRCS))
 #	./$(TARGET)
 
 # Link object files to create executable
-$(TARGET): $(OBJS)
+$(TARGET): $(OBJS) | $(BINDIR)
 	$(CC) $(OBJS) -o $(TARGET) $(LIBS)
 
 # Compile source files to object files
@@ -27,12 +28,15 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.c $(HEADERS) | $(OBJDIR)
 	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-# Create obj directory if it doesn't exist
+# Create directories if they don't exist
 $(OBJDIR):
 	mkdir -p $(OBJDIR)
 
+$(BINDIR):
+	mkdir -p $(BINDIR)
+
 clean:
-	rm -rf $(TARGET) $(OBJDIR)
+	rm -rf $(TARGET) $(OBJDIR) $(BINDIR)
 
 # Defines make command names to avoid conflicts with file names. If no command is given, 
 # make will run the first target (not necessarily the first command).

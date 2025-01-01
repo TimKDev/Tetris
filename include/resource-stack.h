@@ -1,5 +1,4 @@
-#ifndef RESOURCE_STACK_H
-#define RESOURCE_STACK_H
+#pragma once
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -32,4 +31,3 @@ void stack_init(ResourceStack *stack);
 bool stack_push(ResourceStack *stack, void *resource, CleanupFunc cleanup);
 void stack_cleanup(ResourceStack *stackPointer);
 
-#endif
